@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
 use bevy::math::*;
-use bevy::time::*;
 use bevy::core_pipeline::clear_color::ClearColor;
 use rand::Rng;
 
@@ -15,20 +14,22 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-            asset_folder: "../assets".to_string(),
+            asset_folder: "../../assets".to_string(),
             ..Default::default()
         }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(EntityCountDiagnosticsPlugin::default())
         .add_startup_system(setup)
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
-                .with_system(update_general)
-                .with_system(update_soldiers)
-                .with_system(update_info)
-                .with_system(drop_old),
+        .add_systems(
+            (
+                update_general,
+                update_soldiers,
+                update_info,
+                drop_old,
+            )
+            .in_schedule(CoreSchedule::FixedUpdate),
         )
+        .insert_resource(FixedTime::new_from_secs(TIME_STEP))
         .run();
 }
 
@@ -164,7 +165,7 @@ fn update_general(
                         alpha: rng.gen_range(0.5..1.0)
                     };
 
-    for _i in 0..30 {
+    for _i in 0..80 {
         let soldier: Soldier = Soldier {
             move_speed: 100.0 * rng.gen_range(0.5..2.0),
             rotate_speed: f32::to_radians(360.0 * rng.gen_range(-0.3..0.3))
