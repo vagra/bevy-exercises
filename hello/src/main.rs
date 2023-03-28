@@ -14,7 +14,7 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-            asset_folder: "../../assets".to_string(),
+            asset_folder: "../assets".to_string(),
             ..Default::default()
         }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
