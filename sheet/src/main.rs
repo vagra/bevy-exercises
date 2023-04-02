@@ -41,7 +41,7 @@ fn main() {
         )
         .add_plugin(WorldInspectorPlugin::new());
 
-    app.insert_resource(ClearColor(Color::BLACK))
+    app.insert_resource(ClearColor(Color::hex("#507883").unwrap()))
         .add_state::<GameState>();
 
     register(&mut app);

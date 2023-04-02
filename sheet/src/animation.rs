@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use rand::Rng;
 use bevy::prelude::*;
 
 use crate::meta::*;
@@ -66,7 +67,7 @@ impl Animation {
 
         self.direction = direction;
         self.current_animation = Some(name.to_owned());
-        self.current_index = 0;
+        self.current_index = self.get_random_index();
         self.timer.reset();
         self.timer.unpause();
         self.timer.set_mode(if repeating {
@@ -99,6 +100,14 @@ impl Animation {
         false
     }
 
+    pub fn get_current_length(&self) -> Option<usize> {
+        if let Some(frames) = &self.get_current_frames() {
+            return Some(frames.len());
+        }
+
+        None
+    }
+
     pub fn get_current_frames(&self) -> Option<&Vec<usize>> {
         if let Some(animation) = &self.current_animation {
             match self.clips.get(animation) {
@@ -111,6 +120,13 @@ impl Animation {
 
         None
     }
+
+    pub fn get_random_index(&self) -> usize {
+        let mut rng = rand::thread_rng();
+
+        return rng.gen_range(0..self.get_current_length().unwrap());
+    }
+
 
     pub fn get_current_frame(&self) -> Option<usize> {
         if let Some(frames) = self.get_current_frames() {
