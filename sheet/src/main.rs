@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
+mod action;
 mod actor;
 mod animation;
 mod assets;
@@ -9,6 +10,7 @@ mod level;
 mod meta;
 
 use crate::{
+    action::*,
     animation::*,
     assets::*,
     hero::*,
@@ -64,6 +66,9 @@ fn main() {
         )
         .add_system(
             (animating).in_schedule(CoreSchedule::FixedUpdate),
+        )
+        .add_system(
+            (moving).in_schedule(CoreSchedule::FixedUpdate),
         );
     
     app.run();

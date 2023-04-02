@@ -7,14 +7,16 @@ use bevy::{
 
 use crate::{
     *,
+    action::*,
+    animation::*,
     meta::*,
-    animation::*
 };
 
 
 #[derive(Bundle)]
 pub struct HeroBundle {
     pub name: Name,
+    pub move_action: MoveAction,
 
     #[bundle]
     pub animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle,
@@ -32,6 +34,8 @@ impl HeroBundle {
         let mut hero_bundle = HeroBundle {
 
             name: Name::new(actor.name.clone()),
+
+            move_action: MoveAction::new(),
             
             animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle {
 
