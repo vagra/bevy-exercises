@@ -63,7 +63,7 @@ fn main() {
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
         .add_system(
-            animating
+            (animating).in_schedule(CoreSchedule::FixedUpdate),
         );
     
     app.run();

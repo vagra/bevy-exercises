@@ -17,7 +17,7 @@ pub struct Animation {
     pub clips: HashMap<String, Vec<ClipMeta>>,
     pub direction: usize,
     pub current_animation: Option<String>,
-    pub current_frame: usize,
+    pub current_index: usize,
     pub timer: Timer,
     pub once: bool,
 }
@@ -34,10 +34,15 @@ impl Animation {
             let mut clips_vec: Vec<ClipMeta> = Vec::new();
 
             for i in 0..8 {
+                let mut clip_frames = clip_meta.frames.clone();
+
+                for frame in clip_frames.iter_mut() {
+                    *frame = *frame + sprite_sheet.columns * i;
+                }
+
                 let clip = ClipMeta{
                     name: clip_meta.name.clone(),
-                    start: sprite_sheet.columns * i + clip_meta.start,
-                    end: sprite_sheet.columns * i + clip_meta.end,
+                    frames: clip_frames,
                     repeat: clip_meta.repeat,
                 };
 
@@ -51,7 +56,7 @@ impl Animation {
             clips: clips_map,
             direction: 0,
             current_animation: None,
-            current_frame: 0,
+            current_index: 0,
             timer: Timer::from_seconds(sprite_sheet.fps, TimerMode::Once),
             once: false,
         }
@@ -61,7 +66,7 @@ impl Animation {
 
         self.direction = direction;
         self.current_animation = Some(name.to_owned());
-        self.current_frame = 0;
+        self.current_index = 0;
         self.timer.reset();
         self.timer.unpause();
         self.timer.set_mode(if repeating {
@@ -87,22 +92,19 @@ impl Animation {
     }
 
     pub fn is_last_frame(&self) -> bool {
-        if let Some((_, end)) = self.get_current_indices() {
-            if let Some(index) = self.get_current_index() {
-                return index >= end;
-            }
+        if let Some(frames) = self.get_current_frames() {
+            return self.current_index >= frames.len() - 1;
         }
 
         false
     }
 
-    pub fn get_current_indices(&self) -> Option<(usize, usize)> {
+    pub fn get_current_frames(&self) -> Option<&Vec<usize>> {
         if let Some(animation) = &self.current_animation {
             match self.clips.get(animation) {
-                Some(clips) => return Some((
-                    clips[self.direction].start,
-                    clips[self.direction].end,
-                )),
+                Some(clips) => return Some(
+                    &clips[self.direction].frames
+                ),
                 None => return None,
             }
         }
@@ -110,9 +112,9 @@ impl Animation {
         None
     }
 
-    pub fn get_current_index(&self) -> Option<usize> {
-        if let Some((start, _)) = self.get_current_indices() {
-            return Some(start + self.current_frame);
+    pub fn get_current_frame(&self) -> Option<usize> {
+        if let Some(frames) = self.get_current_frames() {
+            return Some(frames[self.current_index]);
         }
 
         None
@@ -142,15 +144,15 @@ pub fn animating(
                 animation.once = true;
 
                 if animation.is_repeating() {
-                    animation.current_frame = 0;
+                    animation.current_index = 0;
                 }
             } else {
-                animation.current_frame += 1;
+                animation.current_index += 1;
             }
         }
 
-        if let Some(index) = animation.get_current_index() {
-            texture_atlas_sprite.index = index;
+        if let Some(frame) = animation.get_current_frame() {
+            texture_atlas_sprite.index = frame;
         }
     }
 }

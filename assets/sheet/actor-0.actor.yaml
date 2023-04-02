@@ -5,18 +5,15 @@ sprite_sheet:
   tile_size: [100, 100]
   columns: 9
   rows: 8
-  fps: 0.1
+  fps: 0.15
 
   animations:
     walk:
-      start: 0
-      end: 2
+      frames: [0, 1, 2, 1]
       repeat: true
     run:
-      start: 3
-      end: 5
+      frames: [3, 4, 5, 4]
       repeat: true
     raise:
-      start: 6
-      end: 8
+      frames: [6, 7, 8, 7]
       repeat: true

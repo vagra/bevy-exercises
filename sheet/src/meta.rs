@@ -67,8 +67,7 @@ pub struct ClipMeta {
     #[serde(skip)]
     pub name: String,
 
-    pub start: usize,
-    pub end: usize,
+    pub frames: Vec<usize>,
 
     #[serde(default)]
     pub repeat: bool,
