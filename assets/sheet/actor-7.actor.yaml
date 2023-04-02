@@ -1,0 +1,22 @@
+name: Actor-7
+
+sprite_sheet:
+  image: actor-7.png
+  tile_size: [100, 100]
+  columns: 9
+  rows: 8
+  fps: 0.1
+
+  animations:
+    walk:
+      start: 0
+      end: 2
+      repeat: true
+    run:
+      start: 3
+      end: 5
+      repeat: true
+    raise:
+      start: 6
+      end: 8
+      repeat: true
