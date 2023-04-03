@@ -56,23 +56,25 @@ pub fn make_info(
     mut commands: Commands,
     font_handle: Res<FontHandle>,
 ) {
+    info!("make TextInfo");
+
     commands.spawn(Info::new(&font_handle));
 }
 
 pub fn update_info(
     diagnostics: Res<Diagnostics>,
-    mut info_text: Query<&mut Text, With<InfoText>>
+    mut query: Query<&mut Text, With<InfoText>>
 ) {
     if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.value() {
-            let mut text = info_text.single_mut();
+            let mut text = query.single_mut();
             text.sections[1].value =  format!("{value:.0}");
         }
     }
 
     if let Some(num) = diagnostics.get(EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
         if let Some(value) = num.value() {
-            let mut text = info_text.single_mut();
+            let mut text = query.single_mut();
             text.sections[3].value =  format!("{value:.0}");
         }
     }

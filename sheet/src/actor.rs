@@ -5,6 +5,8 @@ use bevy::prelude::*;
 use crate::meta::*;
 
 
+const SCALE: Vec3 = Vec3{x: 0.8, y: 0.8, z: 1.0};
+
 #[derive(Component)]
 pub struct Actor;
 
@@ -31,11 +33,14 @@ impl ActorBundle {
             z: 0.0
         };
 
-        let actor_pos = position;
+        let transform = Transform {
+            translation: position,
+            scale: SCALE,
+            ..default()
+        };
 
-        let transform_bundle =
-            TransformBundle::from_transform(
-                Transform::from_translation(actor_pos));
+        let transform_bundle = 
+            TransformBundle::from_transform(transform);
 
         let actor_handle = spawn_meta.actor_handle.clone();
 

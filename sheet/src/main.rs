@@ -6,19 +6,23 @@ mod action;
 mod actor;
 mod animation;
 mod assets;
+mod camera;
 mod hero;
 mod info;
 mod level;
 mod meta;
+mod scene;
 
 use crate::{
     action::*,
     animation::*,
     assets::*,
+    camera::*,
     hero::*,
     info::*,
     level::*,
     meta::*,
+    scene::*,
 };
 
 
@@ -63,8 +67,9 @@ fn main() {
     app.world.insert_resource(LevelHandle(level_handle));
     app.world.insert_resource(FontHandle(font_handle));
 
-    app.add_startup_system(setup)
-        .add_startup_system(make_info);
+    app.add_startup_system(make_info)
+        .add_startup_system(make_camera)
+        .add_startup_system(setup);
 
     app.add_system(
             (load_level).run_if(in_state(GameState::Loading))
@@ -79,7 +84,10 @@ fn main() {
             (moving).after(update),
         )
         .add_system(
-            (animating).after(moving),
+            (z_order).after(moving),
+        )
+        .add_system(
+            (animating).after(z_order),
         )
         .add_system(
             (update_info).after(animating),
@@ -90,14 +98,8 @@ fn main() {
 }
 
 fn setup(
-    mut commands: Commands
 ) {
-    info!("hello, yaml!");
-
-    commands.spawn(
-        Camera2dBundle::default()
-    );
-    
+    info!("hello, character sprite sheet!");
 }
 
 fn update() {
