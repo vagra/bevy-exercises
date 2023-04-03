@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::meta::*;
 
-const REGION: Rect = Rect{
+pub const REGION: Rect = Rect{
     min: Vec2{ x: -800.0, y: -400.0},
     max: Vec2{ x: 800.0, y: 400.0},
 };

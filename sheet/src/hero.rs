@@ -1,5 +1,3 @@
-use rand::Rng;
-
 use bevy::{
     prelude::*,
     sprite::*,
@@ -13,7 +11,7 @@ use crate::{
 };
 
 
-const ANCHOR: Vec2 = Vec2 {x: 0.0, y: 0.4};
+const ANCHOR: Vec2 = Vec2 {x: 0.0, y: -0.4};
 
 
 #[derive(Bundle)]
@@ -63,13 +61,13 @@ impl HeroBundle {
             },
         };
 
-        let mut rng = rand::thread_rng();
-        let direction = rng.gen_range(0.0..8.0) as usize;
-
         hero_bundle
             .animated_sprite_sheet_bundle
             .animation
-            .play("run", direction, true);
+            .play(
+                &hero_bundle.move_action.animation,
+                &hero_bundle.move_action.direction,
+                true);
 
         commands
             .entity(entity)
@@ -77,7 +75,6 @@ impl HeroBundle {
 
     }
 }
-
 
 
 pub fn make_heros(

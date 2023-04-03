@@ -11,7 +11,6 @@ mod hero;
 mod info;
 mod level;
 mod meta;
-mod scene;
 
 use crate::{
     action::*,
@@ -22,7 +21,6 @@ use crate::{
     info::*,
     level::*,
     meta::*,
-    scene::*,
 };
 
 
@@ -86,13 +84,16 @@ fn main() {
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
         .add_system(
-            (moving).after(update),
+            (random).after(update),
         )
         .add_system(
-            (z_order).after(moving),
+            (backing).after(random),
         )
         .add_system(
-            (animating).after(z_order),
+            (moving).after(backing),
+        )
+        .add_system(
+            (animating).after(moving),
         )
         .add_system(
             (update_info).after(animating),

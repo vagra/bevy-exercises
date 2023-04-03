@@ -6,9 +6,6 @@ use crate::meta::*;
 use crate::action::*;
 
 
-pub const ANIMATIONS: usize = 3;
-
-
 #[derive(Bundle, Clone)]
 pub struct AnimatedSpriteSheetBundle {
     pub animation: Animation,
@@ -67,9 +64,9 @@ impl Animation {
         }
     }
 
-    pub fn play(&mut self, name: &str, direction: usize, repeating: bool) {
+    pub fn play(&mut self, name: &str, direction: &usize, repeating: bool) {
 
-        self.direction = direction;
+        self.direction = direction.clone();
         self.current_animation = Some(name.to_owned());
         self.current_index = self.get_random_index();
         self.timer.reset();
