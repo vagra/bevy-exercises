@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::diagnostic::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod action;
@@ -6,6 +7,7 @@ mod actor;
 mod animation;
 mod assets;
 mod hero;
+mod info;
 mod level;
 mod meta;
 
@@ -14,6 +16,7 @@ use crate::{
     animation::*,
     assets::*,
     hero::*,
+    info::*,
     level::*,
     meta::*,
 };
@@ -41,6 +44,8 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest())
         )
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(EntityCountDiagnosticsPlugin::default())
         .add_plugin(WorldInspectorPlugin::new());
 
     app.insert_resource(ClearColor(Color::hex("#507883").unwrap()))
@@ -52,9 +57,15 @@ fn main() {
     let level_asset = "sheet/game.level.yaml";
     let level_handle: Handle<LevelMeta> = asset_server.load(level_asset);
 
-    app.world.insert_resource(LevelHandle(level_handle));
+    let font_asset = "fonts/FiraCode-Regular.ttf";
+    let font_handle: Handle<Font> = asset_server.load(font_asset);
 
-    app.add_startup_system(setup);
+    app.world.insert_resource(LevelHandle(level_handle));
+    app.world.insert_resource(FontHandle(font_handle));
+
+    app.add_startup_system(setup)
+        .add_startup_system(make_info);
+
     app.add_system(
             (load_level).run_if(in_state(GameState::Loading))
         )
@@ -65,10 +76,13 @@ fn main() {
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
         .add_system(
-            (animating).in_schedule(CoreSchedule::FixedUpdate),
+            (moving).after(update),
         )
         .add_system(
-            (moving).in_schedule(CoreSchedule::FixedUpdate),
+            (animating).after(moving),
+        )
+        .add_system(
+            (update_info).after(animating),
         );
     
     app.run();
