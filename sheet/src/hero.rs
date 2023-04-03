@@ -13,6 +13,9 @@ use crate::{
 };
 
 
+const ANCHOR: Vec2 = Vec2 {x: 0.0, y: 0.4};
+
+
 #[derive(Bundle)]
 pub struct HeroBundle {
     pub name: Name,
@@ -43,9 +46,7 @@ impl HeroBundle {
 
                     sprite: TextureAtlasSprite {
                         
-                        anchor: Anchor::Custom(
-                            Vec2::new(0.0, -0.4)
-                        ),
+                        anchor: Anchor::Custom(ANCHOR),
                         ..default()
                     },
 

@@ -3,6 +3,10 @@ use rand::Rng;
 use bevy::prelude::*;
 
 use crate::meta::*;
+use crate::action::*;
+
+
+pub const ANIMATIONS: usize = 3;
 
 
 #[derive(Bundle, Clone)]
@@ -34,7 +38,7 @@ impl Animation {
 
             let mut clips_vec: Vec<ClipMeta> = Vec::new();
 
-            for i in 0..8 {
+            for i in 0..DIRECTIONS {
                 let mut clip_frames = clip_meta.frames.clone();
 
                 for frame in clip_frames.iter_mut() {

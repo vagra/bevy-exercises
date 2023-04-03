@@ -2,6 +2,13 @@ use bevy::prelude::*;
 use bevy::diagnostic::*;
 
 
+const FONT_SIZE: f32 = 20.0;
+const FONT_COLOR: Color = Color::YELLOW;
+
+const INFO_TOP: f32 = 8.0;
+const INFO_RIGHT: f32 = 8.0;
+
+
 #[derive(Resource, Deref, DerefMut)]
 pub struct FontHandle(pub Handle<Font>);
 
@@ -23,8 +30,8 @@ impl Info {
 
         let text_style = TextStyle {
             font: font_handle.0.clone(),
-            font_size: 20.0,
-            color: Color::YELLOW,
+            font_size: FONT_SIZE,
+            color: FONT_COLOR,
         };
 
         Self {
@@ -40,8 +47,8 @@ impl Info {
             .with_style(Style {
                 position_type: PositionType::Absolute,
                 position: UiRect {
-                    top: Val::Px(8.0),
-                    right: Val::Px(8.0),
+                    top: Val::Px(INFO_TOP),
+                    right: Val::Px(INFO_RIGHT),
                     ..default()
                 },
                 ..default()

@@ -4,6 +4,10 @@ use bevy::prelude::*;
 
 use crate::meta::*;
 
+const REGION: Rect = Rect{
+    min: Vec2{ x: -800.0, y: -400.0},
+    max: Vec2{ x: 800.0, y: 400.0},
+};
 
 const SCALE: Vec3 = Vec3{x: 0.8, y: 0.8, z: 1.0};
 
@@ -28,8 +32,8 @@ impl ActorBundle {
         let mut rng = rand::thread_rng();
 
         let position = Vec3 {
-            x: rng.gen_range(-800.0..800.0), 
-            y: rng.gen_range(-400.0..400.0),
+            x: rng.gen_range(REGION.min.x..REGION.max.x), 
+            y: rng.gen_range(REGION.min.y..REGION.max.y),
             z: 0.0
         };
 

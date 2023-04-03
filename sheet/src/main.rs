@@ -26,6 +26,11 @@ use crate::{
 };
 
 
+const BG_COLOR: Color = Color::rgb(0.31, 0.47, 0.51);
+const ASSETS_PATH: &str = "../assets/";
+const LEVEL_YAML: &str = "sheet/game.level.yaml";
+const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
+
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
 enum GameState {
@@ -43,7 +48,7 @@ fn main() {
 
     app.add_plugins(DefaultPlugins
             .set(AssetPlugin {
-                asset_folder: "../assets".to_string(),
+                asset_folder: ASSETS_PATH.to_string(),
                 ..Default::default()
             })
             .set(ImagePlugin::default_nearest())
@@ -52,16 +57,16 @@ fn main() {
         .add_plugin(EntityCountDiagnosticsPlugin::default())
         .add_plugin(WorldInspectorPlugin::new());
 
-    app.insert_resource(ClearColor(Color::hex("#507883").unwrap()))
+    app.insert_resource(ClearColor(BG_COLOR))
         .add_state::<GameState>();
 
     register(&mut app);
 
     let asset_server = app.world.get_resource::<AssetServer>().unwrap();
-    let level_asset = "sheet/game.level.yaml";
+    let level_asset = LEVEL_YAML;
     let level_handle: Handle<LevelMeta> = asset_server.load(level_asset);
 
-    let font_asset = "fonts/FiraCode-Regular.ttf";
+    let font_asset = FONT_TTF;
     let font_handle: Handle<Font> = asset_server.load(font_asset);
 
     app.world.insert_resource(LevelHandle(level_handle));
