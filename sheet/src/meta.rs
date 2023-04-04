@@ -60,7 +60,7 @@ pub struct ActorSpriteSheetMeta {
 }
 
 
-#[derive(TypeUuid, Deserialize, Clone, Debug)]
+#[derive(TypeUuid, Deserialize, Default, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 #[uuid = "36dcaf0b-5800-4fdc-b71e-53ce778fa1b4"]
 pub struct ClipMeta {
@@ -72,4 +72,3 @@ pub struct ClipMeta {
     #[serde(default)]
     pub repeat: bool,
 }
-

@@ -18,7 +18,7 @@ pub struct AnimatedSpriteSheetBundle {
 
 #[derive(Component, Clone)]
 pub struct Animation {
-    pub clips: HashMap<String, Vec<ClipMeta>>,
+    pub clips: HashMap<String, [ClipMeta; DIRECTIONS]>,
     pub direction: usize,
     pub current_animation: Option<String>,
     pub current_index: usize,
@@ -31,11 +31,12 @@ impl Animation {
 
     pub fn new(sprite_sheet: &ActorSpriteSheetMeta) -> Self {
 
-        let mut clips_map: HashMap<String, Vec<ClipMeta>> = HashMap::new();
+        let mut clips_map: HashMap<String, [ClipMeta; DIRECTIONS]> = HashMap::new();
 
         for (name, clip_meta) in sprite_sheet.animations.iter() {
 
-            let mut clips_vec: Vec<ClipMeta> = Vec::new();
+            let mut clips_vec: [ClipMeta; DIRECTIONS] = [(); DIRECTIONS]
+                .map(|_| ClipMeta::default());
 
             for i in 0..DIRECTIONS {
                 let mut clip_frames = clip_meta.frames.clone();
@@ -44,13 +45,9 @@ impl Animation {
                     *frame = *frame + sprite_sheet.columns * i;
                 }
 
-                let clip = ClipMeta {
-                    name: clip_meta.name.clone(),
-                    frames: clip_frames,
-                    repeat: clip_meta.repeat,
-                };
-
-                clips_vec.push(clip);
+                clips_vec[i].name = clip_meta.name.clone();
+                clips_vec[i].frames = clip_frames;
+                clips_vec[i].repeat = clip_meta.repeat.clone();
             }
 
             clips_map.insert(name.to_string(), clips_vec);
