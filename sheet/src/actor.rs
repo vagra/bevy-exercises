@@ -5,11 +5,11 @@ use bevy::prelude::*;
 use crate::meta::*;
 
 pub const REGION: Rect = Rect{
-    min: Vec2{ x: -800.0, y: -400.0},
-    max: Vec2{ x: 800.0, y: 400.0},
+    min: Vec2 { x: -800.0, y: -400.0 },
+    max: Vec2 { x: 800.0, y: 400.0 },
 };
 
-const SCALE: Vec3 = Vec3{x: 0.8, y: 0.8, z: 1.0};
+const SCALE: Vec3 = Vec3 { x: 0.8, y: 0.8, z: 1.0 };
 
 #[derive(Component)]
 pub struct Actor;
@@ -34,7 +34,7 @@ impl ActorBundle {
         let position = Vec3 {
             x: rng.gen_range(REGION.min.x..REGION.max.x), 
             y: rng.gen_range(REGION.min.y..REGION.max.y),
-            z: 0.0
+            z: 0.0,
         };
 
         let transform = Transform {
@@ -43,8 +43,7 @@ impl ActorBundle {
             ..default()
         };
 
-        let transform_bundle = 
-            TransformBundle::from_transform(transform);
+        let transform_bundle = TransformBundle::from_transform(transform);
 
         let actor_handle = spawn_meta.actor_handle.clone();
 

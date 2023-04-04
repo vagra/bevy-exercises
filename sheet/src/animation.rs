@@ -2,8 +2,10 @@ use std::collections::HashMap;
 use rand::Rng;
 use bevy::prelude::*;
 
-use crate::meta::*;
-use crate::action::*;
+use crate::{
+    meta::*,
+    action::*,
+};
 
 
 #[derive(Bundle, Clone)]
@@ -42,7 +44,7 @@ impl Animation {
                     *frame = *frame + sprite_sheet.columns * i;
                 }
 
-                let clip = ClipMeta{
+                let clip = ClipMeta {
                     name: clip_meta.name.clone(),
                     frames: clip_frames,
                     repeat: clip_meta.repeat,
