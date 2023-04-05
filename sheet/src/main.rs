@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+// use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod action;
 mod actor;
@@ -51,9 +51,9 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest())
         )
+        //.add_plugin(WorldInspectorPlugin::new())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(EntityCountDiagnosticsPlugin::default())
-        .add_plugin(WorldInspectorPlugin::new());
+        .add_plugin(EntityCountDiagnosticsPlugin::default());
 
     app.insert_resource(ClearColor(BG_COLOR))
         .add_state::<GameState>();
