@@ -8,7 +8,7 @@ Some practice projects for bevy.
 
 ## sheet
 character sprite-sheet, random movement in 8 directions, turn around when out of bounds.
-![sheet](https://github.com/vagra/bevy-exercises/blob/674806a61663fb3f8ad76e5bd0ec4a7aaa5279e5/assets/screenshots/sheet.jpg)
+![sheet](https://github.com/vagra/bevy-exercises/blob/9bbcd6ef748a32371879e290c8fe9f051d6f513c/assets/screenshots/sheet.jpg)
 
 ## thanks for
 
@@ -17,3 +17,4 @@ character sprite-sheet, random movement in 8 directions, turn around when out of
 
 - **books**
   - [Unofficial Bevy Cheat Book](https://github.com/bevy-cheatbook/bevy-cheatbook)
+  - [Learn Rust by writing Entirely Too Many Linked Lists](https://github.com/rust-unofficial/too-many-lists)
