@@ -3,6 +3,7 @@ resolver = "2"
 members = [
 	"hello",
 	"sheet",
+	"ugrid",
 ]
 
 [profile.dev]

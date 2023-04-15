@@ -4,15 +4,14 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'hello'",
+            "name": "Debug  'ugrid'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=hello",
-                    "--package=hello"
+                    "--bin=ugrid",
                 ],
                 "filter": {
-                    "name": "hello",
+                    "name": "ugrid",
                     "kind": "bin"
                 }
             },
