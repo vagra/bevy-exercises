@@ -16,9 +16,9 @@ const MAX_DURATION: f32 = 8.0;
 pub const Z_MID: f32 = 100.0;
 pub const Z_SCALE: f32 = 0.01;
 
-const MAX_SPEED: f32 = 1.5;
-const MIN_RUN_SPEED: f32 = 1.0;
-const MIN_WALK_SPEED: f32 = 0.5;
+const MAX_SPEED: f32 = 1.2;
+const MIN_RUN_SPEED: f32 = 0.8;
+const MIN_WALK_SPEED: f32 = 0.2;
 
 const SQR: f32 = 0.7071;
 
