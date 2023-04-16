@@ -1,4 +1,4 @@
 # Todo
 
 ## ugrid
- - [*] add collision detection to character sprites.
+ - [x] add collision detection to character sprites.
