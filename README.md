@@ -10,6 +10,11 @@ Some practice projects for bevy.
 character sprite-sheet, random movement in 8 directions, turn around when out of bounds.
 ![sheet](https://github.com/vagra/bevy-exercises/blob/9bbcd6ef748a32371879e290c8fe9f051d6f513c/assets/screenshots/sheet.jpg)
 
+## ugrid
+use uniform-grid to make the character turn around after colliding with each other.
+![ugrid]()
+
+
 ## thanks for
 
 - [bevy](https://github.com/bevyengine/bevy)

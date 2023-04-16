@@ -1,6 +1,6 @@
 use bevy::{
     prelude::*,
-    diagnostic::*
+    diagnostic::*,
 };
 
 mod action;
@@ -13,7 +13,6 @@ mod info;
 mod level;
 mod meta;
 mod ugrid;
-
 
 use crate::{
     action::*,
@@ -39,6 +38,7 @@ enum GameState {
     #[default]
     Loading,
     Spawning,
+    Griding,
     Playing,
     Paused,
 }
@@ -84,6 +84,9 @@ fn main() {
         .add_system(
             (make_heros).run_if(in_state(GameState::Spawning))
         )
+        // .add_system(
+        //     (make_grids).run_if(in_state(GameState::Griding))
+        // )
         .add_system(
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -92,13 +95,17 @@ fn main() {
             .run_if(in_state(GameState::Playing)),
         )
         .add_system(
-            (turning).after(random)
+            (turning).after(update)
             .run_if(in_state(GameState::Playing)),
         )
         .add_system(
             (moving).after(turning)
             .run_if(in_state(GameState::Playing)),
         )
+        // .add_system(
+        //     (update_grids).after(turning)
+        //     .run_if(in_state(GameState::Playing)),
+        // )
         .add_system(
             (animating).after(turning)
             .run_if(in_state(GameState::Playing)),
@@ -112,9 +119,9 @@ fn main() {
 
 }
 
-fn setup(
-) {
+fn setup() {
     info!("hello, character sprite sheet!");
+
 }
 
 fn update() {

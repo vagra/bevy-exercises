@@ -41,6 +41,7 @@ pub struct MoveAction {
     pub speed: f32,
     pub duration: f32,
     pub timer: Timer,
+    pub bumped: bool,
 }
 
 impl MoveAction {
@@ -60,6 +61,8 @@ impl MoveAction {
             duration: seconds,
 
             timer: Timer::from_seconds(seconds, TimerMode::Once),
+
+            bumped: false,
         }
     }
 
@@ -116,13 +119,17 @@ pub fn turning(
                 true
             );
 
-            return;
+            continue;
         }
 
         let vec = grid.dir_query(
             action.direction as u8, transform.translation.x, transform.translation.y, id.0);
 
         if vec.len() > 0 {
+
+            if action.bumped {
+                continue;
+            }
 
             action.bump();
 
@@ -131,6 +138,12 @@ pub fn turning(
                 &action.direction, 
                 true
             );
+
+            continue;
+        }
+
+        if action.bumped {
+            action.bumped = false;
         }
     }
 }

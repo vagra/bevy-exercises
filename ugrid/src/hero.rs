@@ -48,7 +48,7 @@ pub struct HeroBundle {
 
 impl HeroBundle {
 
-    pub fn instantiate(
+    pub fn new(
         commands: &mut Commands,
         actor: &ActorMeta,
         entity: Entity,
@@ -125,7 +125,7 @@ pub fn make_heros(
 
             transform.translation.z = Z_MID - transform.translation.y * Z_SCALE;
             
-            HeroBundle::instantiate(
+            HeroBundle::new(
                 &mut commands,
                 actor,
                 entity,
@@ -139,8 +139,8 @@ pub fn make_heros(
         }
     }
 
+    info!("grid.pool.size: {}", grid.pool.size);
+
     commands.insert_resource(grid);
     commands.insert_resource(NextState(Some(GameState::Playing)));
-
-    info!("playing...");
 }
