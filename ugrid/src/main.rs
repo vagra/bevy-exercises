@@ -91,6 +91,9 @@ fn main() {
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
         .add_system(
+            (camera_control).run_if(in_state(GameState::Playing)),
+        )
+        .add_system(
             (random).after(update)
             .run_if(in_state(GameState::Playing)),
         )

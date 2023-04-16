@@ -22,7 +22,7 @@ const MIN_WALK_SPEED: f32 = 0.2;
 
 const SQR: f32 = 0.7071;
 
-const VECTORES: [Vec2; 8] = [
+pub const VECTORES: [Vec2; 8] = [
 	Vec2{ x: 0.0, y:-1.0 },
 	Vec2{ x: SQR, y:-SQR },
 	Vec2{ x: 1.0, y: 0.0 },
