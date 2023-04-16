@@ -12,7 +12,7 @@ character sprite-sheet, random movement in 8 directions, turn around when out of
 
 ## ugrid
 use uniform-grid to make the character turn around after colliding with each other.
-![ugrid](https://github.com/vagra/bevy-exercises/blob/a3dee319196a596a2df8872df958a8041ddd41bb/assets/screenshots/ugird.jpg)
+![ugrid](https://github.com/vagra/bevy-exercises/blob/cab87499594d9748402b58dbcb6c2b80e452cc3d/assets/screenshots/ugrid.jpg)
 
 
 ## thanks for
