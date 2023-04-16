@@ -1,4 +1,4 @@
 # Todo
 
-## sheet
- - [ ] add collision detection to character sprites.
+## ugrid
+ - [*] add collision detection to character sprites.
