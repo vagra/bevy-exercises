@@ -13,6 +13,11 @@ use crate::*;
 const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.4);
 
 const AGENT_RADIUS: f32 = 5.0;
+const CELL_RADIUS: f32 = 30.0;
+const HALF_COLS:u16 = 16;
+const HALF_ROWS:u16 = 8;
+const COLS:u16 = HALF_COLS * 2;
+const ROWS:u16 = HALF_ROWS * 2;
 
 
 #[derive(Resource, Deref, DerefMut, TypeUuid)]
@@ -22,7 +27,7 @@ pub struct Grid(pub UGrid);
 impl Default for Grid {
     fn default() -> Self {
         
-        Self(UGrid::new(AGENT_RADIUS))
+        Self(UGrid::new(AGENT_RADIUS, CELL_RADIUS, HALF_COLS, HALF_ROWS))
     }
 }
 
@@ -60,9 +65,9 @@ pub struct GridBundle {
 
 impl GridBundle {
 
-    pub fn new(col:u16, row:u16) -> Self {
+    pub fn new(grid:&UGrid, col:u16, row:u16) -> Self {
 
-        let (x, y) = ugrid::cell2pos(col, row);
+        let (x, y) = grid.cell2pos(col, row);
 
         Self {
             col: GridCol::new(col),
@@ -71,7 +76,7 @@ impl GridBundle {
             sprite: SpriteBundle {
                 sprite: Sprite {
                     color: GRID_COLOR.clone(),
-                    custom_size: Some(Vec2::new(CELL_SIZE, CELL_SIZE)),
+                    custom_size: Some(Vec2::new(grid.cell_size, grid.cell_size)),
                     anchor: Anchor::TopLeft,
                     ..default()
                     }, 
@@ -85,12 +90,13 @@ impl GridBundle {
 
 pub fn make_grids(
     mut commands: Commands,
+    grid: Res<Grid>,
 ) {
     info!("make grid cells...");
 
-    for row in 0..ROWS {
+    for row in 0..ROWS{
         for col in 0..COLS {
-            commands.spawn(GridBundle::new(col, row));
+            commands.spawn(GridBundle::new(&grid, col, row));
         }
     }
 
