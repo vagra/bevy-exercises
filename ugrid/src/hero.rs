@@ -142,5 +142,5 @@ pub fn make_heros(
     info!("grid.pool.size: {}", grid.pool.size);
 
     commands.insert_resource(grid);
-    commands.insert_resource(NextState(Some(GameState::Playing)));
+    commands.insert_resource(NextState(Some(GameState::Griding)));
 }

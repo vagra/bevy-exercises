@@ -6,12 +6,11 @@ use bevy::{
     reflect::TypeUuid,
 };
 
-use grid::{ugrid::UGrid};
+use grid::{ugrid::*, pool::*};
 
 use crate::*;
 
-const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.3);
-const GRID_SIZE: f32 = 20.0;
+const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.4);
 
 const AGENT_RADIUS: f32 = 5.0;
 
@@ -28,9 +27,21 @@ impl Default for Grid {
 }
 
 #[derive(Component)]
-pub struct GridIndex(u16);
+pub struct GridRow(u16);
 
-impl GridIndex {
+impl GridRow {
+
+    pub fn new(index:u16) -> Self {
+
+        Self(index)
+    }
+}
+
+
+#[derive(Component)]
+pub struct GridCol(u16);
+
+impl GridCol {
 
     pub fn new(index:u16) -> Self {
 
@@ -40,7 +51,8 @@ impl GridIndex {
 
 #[derive(Bundle)]
 pub struct GridBundle {
-    pub index: GridIndex,
+    pub col: GridCol,
+    pub row: GridRow,
 
     #[bundle]
     pub sprite: SpriteBundle,
@@ -48,19 +60,22 @@ pub struct GridBundle {
 
 impl GridBundle {
 
-    pub fn new(index:u16, x:i16, y:i16) -> Self {
+    pub fn new(col:u16, row:u16) -> Self {
+
+        let (x, y) = ugrid::cell2pos(col, row);
 
         Self {
-            index: GridIndex::new(index),
+            col: GridCol::new(col),
+            row: GridRow::new(row),
 
             sprite: SpriteBundle {
                 sprite: Sprite {
                     color: GRID_COLOR.clone(),
-                    custom_size: Some(Vec2::new(GRID_SIZE, GRID_SIZE)),
-                    anchor: Anchor::Center,
+                    custom_size: Some(Vec2::new(CELL_SIZE, CELL_SIZE)),
+                    anchor: Anchor::TopLeft,
                     ..default()
                     }, 
-                transform: Transform::from_translation(Vec3::new(x as f32, y as f32, 0.0)),
+                transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
                 ..default()
             }
         }
@@ -70,18 +85,13 @@ impl GridBundle {
 
 pub fn make_grids(
     mut commands: Commands,
-    grid: ResMut<Grid>,
 ) {
-    info!("make grid rects...");
+    info!("make grid cells...");
 
-    for index in 0..grid.pool.size {
-        let agent = grid.pool[index];
-
-        if agent.is_free() {
-            continue;
+    for row in 0..ROWS {
+        for col in 0..COLS {
+            commands.spawn(GridBundle::new(col, row));
         }
-
-        commands.spawn(GridBundle::new(index as u16, agent.x, agent.y));
     }
 
     commands.insert_resource(NextState(Some(GameState::Playing)));
@@ -92,15 +102,20 @@ pub fn make_grids(
 
 pub fn update_grids(
     mut query: Query<(
-        &GridIndex,
-        &mut Transform,
+        &GridCol,
+        &GridRow,
+        &mut Sprite,
     )>,
     grid: ResMut<Grid>,
 ) {
-    for (index, mut transform) in query.iter_mut() {
+    for (col, row, mut sprite) in query.iter_mut() {
 
-        transform.translation.x = grid.pool[index.0].x as f32;
-        transform.translation.y = grid.pool[index.0].y as f32;
+        if grid.cells[row.0][col.0].head == INVALID {
+            sprite.color = Color::NONE;
+        }
+        else {
+            sprite.color = GRID_COLOR;
+        }
     }
 
 

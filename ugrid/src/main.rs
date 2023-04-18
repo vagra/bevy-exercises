@@ -84,9 +84,9 @@ fn main() {
         .add_system(
             (make_heros).run_if(in_state(GameState::Spawning))
         )
-        // .add_system(
-        //     (make_grids).run_if(in_state(GameState::Griding))
-        // )
+        .add_system(
+            (make_grids).run_if(in_state(GameState::Griding))
+        )
         .add_system(
             (update).in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -105,10 +105,10 @@ fn main() {
             (moving).after(turning)
             .run_if(in_state(GameState::Playing)),
         )
-        // .add_system(
-        //     (update_grids).after(turning)
-        //     .run_if(in_state(GameState::Playing)),
-        // )
+        .add_system(
+            (update_grids).after(turning)
+            .run_if(in_state(GameState::Playing)),
+        )
         .add_system(
             (animating).after(turning)
             .run_if(in_state(GameState::Playing)),
