@@ -12,8 +12,8 @@ use crate::*;
 
 const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.4);
 
-const AGENT_RADIUS: f32 = 5.0;
-const CELL_RADIUS: f32 = 30.0;
+const AGENT_RADIUS: u16 = 5;
+const CELL_RADIUS: u16 = 30;
 const HALF_COLS:u16 = 16;
 const HALF_ROWS:u16 = 8;
 const COLS:u16 = HALF_COLS * 2;
@@ -76,11 +76,11 @@ impl GridBundle {
             sprite: SpriteBundle {
                 sprite: Sprite {
                     color: GRID_COLOR.clone(),
-                    custom_size: Some(Vec2::new(grid.cell_size, grid.cell_size)),
+                    custom_size: Some(Vec2::new(grid.cell_size as f32, grid.cell_size as f32)),
                     anchor: Anchor::TopLeft,
                     ..default()
                     }, 
-                transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
+                transform: Transform::from_translation(Vec3::new(x as f32, y as f32, 0.0)),
                 ..default()
             }
         }

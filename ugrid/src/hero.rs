@@ -134,8 +134,8 @@ pub fn make_heros(
 
             grid.insert(
                 entity.index().clone(),
-                transform.translation.x,
-                transform.translation.y)
+                transform.translation.x as i16,
+                transform.translation.y as i16)
         }
     }
 

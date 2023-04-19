@@ -123,7 +123,7 @@ pub fn turning(
         }
 
         let vec = grid.dir_query(
-            action.direction as u8, transform.translation.x, transform.translation.y, id.0);
+            action.direction as u8, transform.translation.x as i16, transform.translation.y as i16, id.0);
 
         if vec.len() > 0 {
 
@@ -172,8 +172,8 @@ pub fn moving(
         // z-order
         transform.translation.z = Z_MID - transform.translation.y * Z_SCALE;
         
-        grid.move_cell(id.0, prev_pos.0.x, prev_pos.0.y,
-            transform.translation.x, transform.translation.y);
+        grid.move_cell(id.0, prev_pos.0.x as i16, prev_pos.0.y as i16,
+            transform.translation.x as i16, transform.translation.y as i16);
     }
 
 }
