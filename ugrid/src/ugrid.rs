@@ -6,7 +6,7 @@ use bevy::{
     reflect::TypeUuid,
 };
 
-use grid::{ugrid::*, pool::*};
+use grid::{*, ugrid::*};
 
 use crate::*;
 
