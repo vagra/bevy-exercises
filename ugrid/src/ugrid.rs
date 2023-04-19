@@ -116,7 +116,7 @@ pub fn update_grids(
 ) {
     for (col, row, mut sprite) in query.iter_mut() {
 
-        if grid.cells[row.0][col.0].head == INVALID {
+        if grid.heads[row.0][col.0].head == INVALID {
             sprite.color = Color::NONE;
         }
         else {
