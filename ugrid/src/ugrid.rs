@@ -14,8 +14,8 @@ const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.4);
 
 const AGENT_RADIUS: u16 = 5;
 const CELL_RADIUS: u16 = 30;
-const HALF_COLS:u16 = 16;
-const HALF_ROWS:u16 = 8;
+const HALF_COLS:u16 = 40;
+const HALF_ROWS:u16 = 40;
 const COLS:u16 = HALF_COLS * 2;
 const ROWS:u16 = HALF_ROWS * 2;
 
@@ -67,7 +67,7 @@ impl GridBundle {
 
     pub fn new(grid:&UGrid, col:u16, row:u16) -> Self {
 
-        let (x, y) = grid.cell2pos(col, row);
+        let (x, y) = grid.ucell2pos(col, row);
 
         Self {
             col: GridCol::new(col),
@@ -116,7 +116,7 @@ pub fn update_grids(
 ) {
     for (col, row, mut sprite) in query.iter_mut() {
 
-        if grid.heads[row.0][col.0].head == INVALID {
+        if grid.cells[row.0][col.0].head == INVALID {
             sprite.color = Color::NONE;
         }
         else {

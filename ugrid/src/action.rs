@@ -8,6 +8,9 @@ use crate::{
     ugrid::*,
 };
 
+use grid::*;
+
+
 pub const DIRECTIONS: usize = 8;
 
 const MIN_DURATION: f32 = 2.0;
@@ -41,7 +44,7 @@ pub struct MoveAction {
     pub speed: f32,
     pub duration: f32,
     pub timer: Timer,
-    pub bumped: bool,
+    pub pause: bool,
 }
 
 impl MoveAction {
@@ -62,7 +65,7 @@ impl MoveAction {
 
             timer: Timer::from_seconds(seconds, TimerMode::Once),
 
-            bumped: false,
+            pause: false,
         }
     }
 
@@ -72,20 +75,40 @@ impl MoveAction {
         self.animation = gen_random_animation(self.speed);
         self.duration = gen_random_duration();
         self.timer = Timer::from_seconds(self.duration, TimerMode::Once);
+        self.pause = false;
     }
 
-    pub fn back(&mut self, back: usize) {
+    pub fn back(&mut self, back: u8) {
         let mut rng = rand::thread_rng();
     
         let range: i32 = rng.gen_range(-1..2);
         self.direction = (back as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
     }
 
-    pub fn bump(&mut self) {
+    pub fn _bump(&mut self) {
         let mut rng = rand::thread_rng();
     
         let range: i32 = rng.gen_range(-2..3);
         self.direction = (self.direction as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
+    }
+
+    pub fn dodge(&mut self, dirs:&Vec<usize>) -> bool {
+
+        if dirs.contains(&self.direction) {
+            return false;
+        }
+
+        let mut rng = rand::thread_rng();
+
+        let index = rng.gen_range(0..dirs.len());
+        self.direction = dirs[index];
+
+        true
+    }
+
+    pub fn stop(&mut self) {
+
+        self.pause = true;
     }
 
 
@@ -107,11 +130,11 @@ pub fn turning(
             continue;
         }
 
-        if let Some(back_direction) = check_region(
-            transform.translation.x,
-            transform.translation.y,
+        if let Some(back_dir) = grid.out_bounds(
+            transform.translation.x as i16,
+            transform.translation.y as i16,
         ) {
-            action.back(back_direction);
+            action.back(back_dir);
 
             animation.play(
                 action.animation.as_str(), 
@@ -122,29 +145,27 @@ pub fn turning(
             continue;
         }
 
-        let vec = grid.dir_query(
-            action.direction as u8, transform.translation.x as i16, transform.translation.y as i16, id.0);
+        let dirs = grid.query_dirs(
+            transform.translation.x as i16, transform.translation.y as i16, id.0
+        );
 
-        if vec.len() > 0 {
+        if dirs.len() > 0 {
 
-            if action.bumped {
-                continue;
+            if action.dodge(&dirs) {
+
+                animation.play(
+                    action.animation.as_str(), 
+                    &action.direction, 
+                    true
+                );
             }
+        }
+        else {
 
-            action.bump();
-
-            animation.play(
-                action.animation.as_str(), 
-                &action.direction, 
-                true
-            );
-
-            continue;
+            action.stop();
         }
 
-        if action.bumped {
-            action.bumped = false;
-        }
+        continue;
     }
 }
 
@@ -153,13 +174,19 @@ pub fn moving(
         &ID,
         &mut Pos,
         &mut Transform,
-        &MoveAction,
+        &mut MoveAction,
     )>,
     mut grid: ResMut<Grid>,
 ) {
-    for (id, mut prev_pos, mut transform, action) in query.iter_mut() {
+    for (id, mut prev_pos, mut transform, mut action) in query.iter_mut() {
 
         if action.speed < MIN_WALK_SPEED {
+            continue;
+        }
+
+        if action.pause {
+
+            action.pause = false;
             continue;
         }
 
@@ -205,7 +232,7 @@ pub fn random(
 }
 
 
-pub fn check_region(x: f32, y: f32) -> Option<usize> {
+pub fn _check_region(x: f32, y: f32) -> Option<usize> {
     let l = REGION.min.x;
     let b = REGION.min.y;
     let r = REGION.max.x;
