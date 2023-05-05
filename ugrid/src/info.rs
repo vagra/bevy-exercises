@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
 
+use crate::GameState;
+use crate::ugrid::Grid;
+
 
 const FONT_SIZE: f32 = 20.0;
 const FONT_COLOR: Color = Color::YELLOW;
@@ -26,13 +29,15 @@ pub struct Info {
 }
 
 impl Info {
-    pub fn new(font_handle: &FontHandle) -> Self {
+    pub fn new(font_handle: &FontHandle, agents:u16) -> Self {
 
         let text_style = TextStyle {
             font: font_handle.0.clone(),
             font_size: FONT_SIZE,
             color: FONT_COLOR,
         };
+
+        let agents = format!("\nagents: {}", agents);
 
         Self {
             info_text: InfoText,
@@ -41,8 +46,7 @@ impl Info {
                 TextSection::new("\nfps: ", text_style.clone()),    // 0
                 TextSection::from_style(text_style.clone()),        // 1
     
-                TextSection::new("\nnum: ", text_style.clone()),    // 2
-                TextSection::from_style(text_style.clone()),        // 3
+                TextSection::new(agents, text_style.clone()),    // 2
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
@@ -62,10 +66,15 @@ impl Info {
 pub fn make_info(
     mut commands: Commands,
     font_handle: Res<FontHandle>,
+    grid: Res<Grid>
 ) {
     info!("make TextInfo");
 
-    commands.spawn(Info::new(&font_handle));
+    commands.spawn(Info::new(&font_handle, grid.pool.size));
+
+    commands.insert_resource(NextState(Some(GameState::Playing)));
+
+    info!("playing...")
 }
 
 pub fn update_info(
@@ -76,13 +85,6 @@ pub fn update_info(
         if let Some(value) = fps.value() {
             let mut text = query.single_mut();
             text.sections[1].value =  format!("{value:.0}");
-        }
-    }
-
-    if let Some(num) = diagnostics.get(EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
-        if let Some(value) = num.value() {
-            let mut text = query.single_mut();
-            text.sections[3].value =  format!("{value:.0}");
         }
     }
 }

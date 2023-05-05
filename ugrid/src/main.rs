@@ -39,6 +39,7 @@ enum GameState {
     Loading,
     Spawning,
     Griding,
+    Infoing,
     Playing,
     Paused,
 }
@@ -74,8 +75,7 @@ fn main() {
     app.world.insert_resource(LevelHandle(level_handle));
     app.world.insert_resource(FontHandle(font_handle));
 
-    app.add_startup_system(make_info)
-        .add_startup_system(make_camera)
+    app.add_startup_system(make_camera)
         .add_startup_system(setup);
 
     app.add_system(
@@ -86,6 +86,9 @@ fn main() {
         )
         .add_system(
             (make_grids).run_if(in_state(GameState::Griding))
+        )
+        .add_system(
+            (make_info).run_if(in_state(GameState::Griding))
         )
         .add_system(
             (update).in_schedule(CoreSchedule::FixedUpdate),

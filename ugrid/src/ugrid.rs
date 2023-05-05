@@ -100,9 +100,7 @@ pub fn make_grids(
         }
     }
 
-    commands.insert_resource(NextState(Some(GameState::Playing)));
-
-    info!("playing...");
+    commands.insert_resource(NextState(Some(GameState::Infoing)));
 }
 
 
