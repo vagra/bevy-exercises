@@ -32,32 +32,24 @@ impl Default for Grid {
 }
 
 #[derive(Component)]
-pub struct GridRow(u16);
-
-impl GridRow {
-
-    pub fn new(index:u16) -> Self {
-
-        Self(index)
-    }
-}
-
+pub struct UCol(pub u16);
 
 #[derive(Component)]
-pub struct GridCol(u16);
+pub struct URow(pub u16);
 
-impl GridCol {
+#[derive(Component)]
+pub struct UID(pub u32);
 
-    pub fn new(index:u16) -> Self {
-
-        Self(index)
-    }
+#[derive(Component, Default)]
+pub struct UPos{
+    pub x: i16,
+    pub y: i16,
 }
 
 #[derive(Bundle)]
 pub struct GridBundle {
-    pub col: GridCol,
-    pub row: GridRow,
+    pub col: UCol,
+    pub row: URow,
 
     #[bundle]
     pub sprite: SpriteBundle,
@@ -70,17 +62,21 @@ impl GridBundle {
         let (x, y) = grid.ucell2pos(col, row);
 
         Self {
-            col: GridCol::new(col),
-            row: GridRow::new(row),
+            col: UCol(col),
+            row: URow(row),
 
             sprite: SpriteBundle {
                 sprite: Sprite {
                     color: GRID_COLOR.clone(),
-                    custom_size: Some(Vec2::new(grid.cell_size as f32, grid.cell_size as f32)),
+                    custom_size: Some(
+                            Vec2::new(grid.cell_size as f32, grid.cell_size as f32)
+                        ),
                     anchor: Anchor::TopLeft,
                     ..default()
                     }, 
-                transform: Transform::from_translation(Vec3::new(x as f32, y as f32, 0.0)),
+                transform: Transform::from_translation(
+                        Vec3::new(x as f32, y as f32, 0.0)
+                    ),
                 ..default()
             }
         }
@@ -106,19 +102,19 @@ pub fn make_grids(
 
 pub fn update_grids(
     mut query: Query<(
-        &GridCol,
-        &GridRow,
-        &mut Sprite,
+        &UCol,
+        &URow,
+        &mut Visibility,
     )>,
     grid: ResMut<Grid>,
 ) {
-    for (col, row, mut sprite) in query.iter_mut() {
+    for (col, row, mut visibility) in query.iter_mut() {
 
         if grid.cells[row.0][col.0].head == INVALID {
-            sprite.color = Color::NONE;
+            *visibility = Visibility::Hidden;
         }
         else {
-            sprite.color = GRID_COLOR;
+            *visibility = Visibility::Visible;
         }
     }
 

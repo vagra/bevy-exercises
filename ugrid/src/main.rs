@@ -12,6 +12,7 @@ mod hero;
 mod info;
 mod level;
 mod meta;
+mod mover;
 mod ugrid;
 
 use crate::{
@@ -23,6 +24,7 @@ use crate::{
     info::*,
     level::*,
     meta::*,
+    mover::*,
     ugrid::*,
 };
 

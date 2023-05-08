@@ -39,7 +39,7 @@ pub struct HeroBundle {
     pub id: ID,
     pub name: Name,
     pub prev_pos: Pos,
-    pub move_action: MoveAction,
+    pub move_action: Mover,
 
     #[bundle]
     pub animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle,
@@ -64,7 +64,7 @@ impl HeroBundle {
 
             name: Name::new(actor.name.clone()),
 
-            move_action: MoveAction::new(),
+            move_action: Mover::new(),
             
             animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle {
 
@@ -94,7 +94,7 @@ impl HeroBundle {
             .animation
             .play(
                 &hero_bundle.move_action.animation,
-                &hero_bundle.move_action.direction,
+                &hero_bundle.move_action.dir,
                 true);
 
         commands
