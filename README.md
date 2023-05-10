@@ -12,11 +12,13 @@ character sprite-sheet, random movement in 8 directions, turn around when out of
 
 ## ugrid
 use uniform-grid to make the character turn around after colliding with each other.
+uniform-grid is suitable for agents of consistent size.
 arrow keys move camera.
 ![ugrid](https://github.com/vagra/bevy-exercises/blob/36507915026abc75cf5c7f37c5eb9fb45293b4ff/assets/screenshots/ugrid.jpg)
 
 ## dgrid
 use tight/loose double-grid to make the character turn around after colliding with each other.
+tight/loose double-grid is suitable for agents of varying size and dimensions.
 arrow keys move camera.
 ![dgrid](https://github.com/vagra/bevy-exercises/blob/770f393590e6c9165d3f4d3eb44e491f9f2aa60d/assets/screenshots/dgrid.jpg)
 
