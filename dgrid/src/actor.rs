@@ -11,6 +11,9 @@ pub const REGION: Rect = Rect{
 
 pub const MIN_AGENT_RADIUS: i16 = 5;
 pub const MAX_AGENT_RADIUS: i16 = 10;
+pub const MAX_SPRITE_RADIUS: i16 = 40;
+pub const SPRITE_RADIUS: i16 = 50;
+pub const SPRITE_SCALE: f32 = MAX_SPRITE_RADIUS as f32 / SPRITE_RADIUS as f32;
 
 #[derive(Component, Default, Debug)]
 pub struct Actor {
@@ -61,7 +64,7 @@ impl ActorBundle {
 
     pub fn new(spawn_meta: &ActorSpawnMeta) -> Self {
 
-        ActorBundle {
+        Self {
             spawn_count: SpawnCount(spawn_meta.count),
             actor_handle: spawn_meta.actor_handle.clone(),
         }

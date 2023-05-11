@@ -34,7 +34,7 @@ impl HeroBundle {
         let actor = Actor::new(index, id);
         let mover = Mover::new();
 
-        let zoom = actor.hw as f32 / MAX_AGENT_RADIUS as f32;
+        let zoom = actor.hw as f32 / MAX_AGENT_RADIUS as f32 * SPRITE_SCALE;
 
         let transform = Transform{
             translation: Vec3 {

@@ -19,7 +19,7 @@ spawns:
     count: 500
   - actor: ../sheet/actor-9.actor.yaml
     count: 500
-  - actor: ../sheet/actor-500.actor.yaml
+  - actor: ../sheet/actor-10.actor.yaml
     count: 500
   - actor: ../sheet/actor-11.actor.yaml
     count: 500

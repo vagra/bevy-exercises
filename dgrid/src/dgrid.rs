@@ -12,12 +12,10 @@ use crate::*;
 
 const GRID_COLOR: Color = Color::rgba(0.75, 0.35, 0.25, 0.4);
 
-const AGENT_RADIUS: u16 = 5;
-const CELL_RADIUS: u16 = 30;
+const FACTOR: u16 = 4;
+const LCELL_RADIUS: u16 = 30;
 const HALF_COLS:u16 = 40;
 const HALF_ROWS:u16 = 40;
-const COLS:u16 = HALF_COLS * 2;
-const ROWS:u16 = HALF_ROWS * 2;
 
 
 #[derive(Resource, Deref, DerefMut, TypeUuid)]
@@ -27,7 +25,7 @@ pub struct Grid(pub DGrid);
 impl Default for Grid {
     fn default() -> Self {
         
-        Self(DGrid::new(AGENT_RADIUS, CELL_RADIUS, HALF_COLS, HALF_ROWS))
+        Self(DGrid::new(FACTOR, LCELL_RADIUS, HALF_COLS, HALF_ROWS))
     }
 }
 
@@ -111,6 +109,7 @@ pub fn make_grids(
 
     for row in 0..grid.loose.rows {
         for col in 0..grid.loose.cols {
+
             commands.spawn(GridBundle::new(&grid, col, row));
         }
     }
