@@ -1,12 +1,10 @@
-#![allow(dead_code)]
-
 use bevy::{
     prelude::*,
     sprite::Anchor,
     reflect::TypeUuid,
 };
 
-use grid::{*, ugrid::*};
+use grid::{*, ugrid::{*, ucell::UCell}};
 
 use crate::*;
 
@@ -16,9 +14,6 @@ const AGENT_RADIUS: u16 = 5;
 const CELL_RADIUS: u16 = 30;
 const HALF_COLS:u16 = 40;
 const HALF_ROWS:u16 = 40;
-const COLS:u16 = HALF_COLS * 2;
-const ROWS:u16 = HALF_ROWS * 2;
-
 
 #[derive(Resource, Deref, DerefMut, TypeUuid)]
 #[uuid = "e458f087-eee5-48ee-bc11-f59f8826d4ae"]
@@ -37,14 +32,6 @@ pub struct UCol(pub u16);
 #[derive(Component)]
 pub struct URow(pub u16);
 
-#[derive(Component)]
-pub struct UID(pub u32);
-
-#[derive(Component, Default)]
-pub struct UPos{
-    pub x: i16,
-    pub y: i16,
-}
 
 #[derive(Bundle)]
 pub struct GridBundle {
@@ -68,15 +55,18 @@ impl GridBundle {
             sprite: SpriteBundle {
                 sprite: Sprite {
                     color: GRID_COLOR.clone(),
-                    custom_size: Some(
-                            Vec2::new(grid.cell_size as f32, grid.cell_size as f32)
-                        ),
+                    custom_size: Some( Vec2 {
+                        x: grid.cell_size as f32,
+                        y: grid.cell_size as f32
+                    }),
                     anchor: Anchor::TopLeft,
                     ..default()
                     }, 
-                transform: Transform::from_translation(
-                        Vec3::new(x as f32, y as f32, 0.0)
-                    ),
+                transform: Transform::from_translation( Vec3 {
+                        x: x as f32,
+                        y: y as f32,
+                        z: 0.0
+                }),
                 ..default()
             }
         }
@@ -90,8 +80,9 @@ pub fn make_grids(
 ) {
     info!("make grid cells...");
 
-    for row in 0..ROWS{
-        for col in 0..COLS {
+    for row in 0..grid.rows{
+        for col in 0..grid.cols {
+
             commands.spawn(GridBundle::new(&grid, col, row));
         }
     }
@@ -108,9 +99,13 @@ pub fn update_grids(
     )>,
     grid: ResMut<Grid>,
 ) {
+    let mut ucell:UCell;
+
     for (col, row, mut visibility) in query.iter_mut() {
 
-        if grid.cells[row.0][col.0].head == INVALID {
+        ucell = grid.cells[row.0][col.0];
+
+        if ucell.head == INVALID {
             *visibility = Visibility::Hidden;
         }
         else {

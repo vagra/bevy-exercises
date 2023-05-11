@@ -19,9 +19,7 @@ pub fn load_level(
         for spawn in &level.spawns {
             info!("load {}  count: {}", spawn.actor, spawn.count);
             
-            for _i in 0..spawn.count {
-                commands.spawn(ActorBundle::new(spawn));
-            }
+            commands.spawn(ActorBundle::new(spawn));
         }
 
         commands.insert_resource(level.clone());

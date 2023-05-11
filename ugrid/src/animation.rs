@@ -63,7 +63,7 @@ impl Animation {
         }
     }
 
-    pub fn play(&mut self, name: &str, direction: &usize, repeating: bool) {
+    pub fn play(&mut self, name: &str, direction: usize, repeating: bool) {
 
         self.direction = direction.clone();
         self.current_animation = Some(name.to_owned());

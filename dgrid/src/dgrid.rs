@@ -92,7 +92,6 @@ impl GridBundle {
                         y: lrect.t as f32,
                         z: 0.0
                     }),
-                    visibility: Visibility::Visible,
                     ..default()
                 }
             }

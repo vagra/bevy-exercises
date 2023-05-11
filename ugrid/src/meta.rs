@@ -24,7 +24,7 @@ pub struct LevelMeta {
 #[uuid = "265d4cd7-0e59-4a32-ba72-76e5969ec993"]
 pub struct ActorSpawnMeta {
     pub actor: String,
-    pub count: u16,
+    pub count: u32,
 
     #[serde(skip)]
     pub actor_handle: Handle<ActorMeta>,
@@ -39,6 +39,7 @@ pub struct ActorHandle(pub Handle<ActorMeta>);
 #[serde(deny_unknown_fields)]
 #[uuid="a9827c4c-017d-4394-9669-8e9f0cdf8632"]
 pub struct ActorMeta {
+    pub id: u32,
     pub name: String,
     pub sprite_sheet: ActorSpriteSheetMeta,
 }

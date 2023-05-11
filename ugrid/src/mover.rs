@@ -2,7 +2,10 @@
 use rand::Rng;
 use bevy::prelude::*;
 
-use crate::action::*;
+use crate::{
+    action::*,
+    animation::*,
+};
 
 
 #[derive(Component, Clone)]
@@ -79,6 +82,14 @@ impl Mover {
         self.pause = true;
     }
 
+    pub fn play(& self, animation:&mut Animation) {
+
+        animation.play(
+            &self.animation, 
+            self.dir,
+            true
+        );
+    }
 
 }
 

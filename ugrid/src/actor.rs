@@ -9,19 +9,45 @@ pub const REGION: Rect = Rect{
     max: Vec2 { x: 800.0, y: 400.0 },
 };
 
-const SCALE: Vec3 = Vec3 { x: 0.5, y: 0.5, z: 1.0 };
+pub const SPRITE_SCALE: f32 = 0.5;
+
+#[derive(Component, Default, Debug)]
+pub struct Actor {
+    pub index: u32,
+    pub id: u32,
+    pub prev_x: f32,
+    pub prev_y: f32,
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Actor {
+
+    pub fn new(index:u32, id:u32) -> Self {
+
+        let (x, y) = gen_rand_pos();
+        
+        Self {
+            index,
+            id,
+            prev_x: x,
+            prev_y: y,
+            x,
+            y,
+        }
+    }
+}
+
+
 
 #[derive(Component)]
-pub struct Actor;
+pub struct SpawnCount(pub u32);
 
 
 #[derive(Bundle)]
 pub struct ActorBundle {
-    actor: Actor,
+    spawn_count: SpawnCount,
     actor_handle: Handle<ActorMeta>,
-
-    #[bundle]
-    transform_bundle: TransformBundle,
 }
 
 
@@ -29,29 +55,17 @@ impl ActorBundle {
 
     pub fn new(spawn_meta: &ActorSpawnMeta) -> Self {
 
-        let mut rng = rand::thread_rng();
-
-        let position = Vec3 {
-            x: rng.gen_range(REGION.min.x..REGION.max.x), 
-            y: rng.gen_range(REGION.min.y..REGION.max.y),
-            z: 0.0,
-        };
-
-        let transform = Transform {
-            translation: position,
-            scale: SCALE,
-            ..default()
-        };
-
-        let transform_bundle = TransformBundle::from_transform(transform);
-
-        let actor_handle = spawn_meta.actor_handle.clone();
-
-        ActorBundle {
-            actor: Actor,
-            actor_handle,
-            transform_bundle,
+        Self {
+            spawn_count: SpawnCount(spawn_meta.count),
+            actor_handle: spawn_meta.actor_handle.clone(),
         }
     }
 }
 
+
+fn gen_rand_pos() -> (f32, f32) {
+    let mut rng = rand::thread_rng();
+
+    ( rng.gen_range(REGION.min.x..REGION.max.x),
+        rng.gen_range(REGION.min.y..REGION.max.y) )
+}

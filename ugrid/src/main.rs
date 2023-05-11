@@ -90,7 +90,7 @@ fn main() {
             (make_grids).run_if(in_state(GameState::Griding))
         )
         .add_system(
-            (make_info).run_if(in_state(GameState::Griding))
+            (make_info).run_if(in_state(GameState::Infoing))
         )
         .add_system(
             (update).in_schedule(CoreSchedule::FixedUpdate),

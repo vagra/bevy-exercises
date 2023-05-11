@@ -5,41 +5,20 @@ use bevy::{
 
 use crate::{
     *,
+    actor::*,
     action::*,
     animation::*,
     meta::*,
 };
 
-
+const MAX_SPAWN: u32 = 10000;
 const ANCHOR: Vec2 = Vec2 {x: 0.0, y: -0.4};
 
-#[derive(Component)]
-pub struct ID(pub u32);
-
-impl ID {
-
-    pub fn new(index:u32) -> Self {
-
-        Self(index)
-    }
-}
-
-#[derive(Component)]
-pub struct Pos(pub Vec2);
-
-impl Pos {
-    pub fn new(x:f32, y:f32) -> Self {
-
-        Self(Vec2::new(x, y))
-    }
-}
 
 #[derive(Bundle)]
 pub struct HeroBundle {
-    pub id: ID,
-    pub name: Name,
-    pub prev_pos: Pos,
-    pub move_action: Mover,
+    pub actor: Actor,
+    pub mover: Mover,
 
     #[bundle]
     pub animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle,
@@ -48,23 +27,33 @@ pub struct HeroBundle {
 
 impl HeroBundle {
 
-    pub fn new(
-        commands: &mut Commands,
-        actor: &ActorMeta,
-        entity: Entity,
-        transform: &Transform,
-    ) {
-        let mut hero_bundle = HeroBundle {
+    pub fn new(index:u32, actor_meta: &ActorMeta) -> Self {
 
-            id: ID::new(entity.index()),
+        let id = (actor_meta.id * MAX_SPAWN + index) as u32;
 
-            prev_pos: Pos::new(
-                        transform.translation.x,
-                        transform.translation.y),
+        let actor = Actor::new(index, id);
+        let mover = Mover::new();
 
-            name: Name::new(actor.name.clone()),
+        let zoom = SPRITE_SCALE;
 
-            move_action: Mover::new(),
+        let transform = Transform{
+            translation: Vec3 {
+                x: actor.x,
+                y: actor.y,
+                z: order_z(actor.y)
+            },
+            scale: Vec3{
+                x: zoom,
+                y: zoom,
+                z: 1.0
+            },
+            ..default()
+        };
+
+        Self {
+
+            actor,
+            mover,
             
             animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle {
 
@@ -76,41 +65,41 @@ impl HeroBundle {
                         ..default()
                     },
 
-                    texture_atlas: actor.sprite_sheet.atlas_handle.clone(),
+                    texture_atlas: actor_meta.sprite_sheet.atlas_handle.clone(),
 
-                    transform: *transform,
+                    transform,
 
-                    ..Default::default()
+                    ..default()
                 },
 
                 animation: Animation::new(
-                    &actor.sprite_sheet,
+
+                    &actor_meta.sprite_sheet,
                 ),
             },
-        };
+        }
+    }
 
-        hero_bundle
-            .animated_sprite_sheet_bundle
-            .animation
-            .play(
-                &hero_bundle.move_action.animation,
-                &hero_bundle.move_action.dir,
-                true);
 
-        commands
-            .entity(entity)
-            .insert(hero_bundle);
+    pub fn play(&mut self) {
 
+        self
+        .animated_sprite_sheet_bundle
+        .animation
+        .play(
+            &self.mover.animation,
+            self.mover.dir,
+            true
+        );
     }
 }
 
 
 pub fn make_heros(
     mut commands: Commands,
-    mut actors: Query<(
+    query: Query<(
+            &SpawnCount,
             &Handle<ActorMeta>,
-            Entity,
-            &mut Transform,
         )>,
     actor_assets: Res<Assets<ActorMeta>>,
 ) {
@@ -119,23 +108,25 @@ pub fn make_heros(
 
     let mut grid = Grid::default();
 
-    for (actor_handle, entity, mut transform) in actors.iter_mut() {
+    for ( spawn_count, actor_handle) in query.iter() {
 
-        if let Some(actor) = actor_assets.get(actor_handle) {
-
-            transform.translation.z = Z_MID - transform.translation.y * Z_SCALE;
+        if let Some(actor_meta) = actor_assets.get(actor_handle) {
             
-            HeroBundle::new(
-                &mut commands,
-                actor,
-                entity,
-                &transform,
-            );
+            for index in 0..spawn_count.0 {
 
-            grid.insert(
-                entity.index().clone(),
-                transform.translation.x as i16,
-                transform.translation.y as i16)
+                let mut hero_bundle = HeroBundle::new(index, actor_meta,);
+    
+                grid.insert(
+                    hero_bundle.actor.id,
+                    hero_bundle.actor.x as i16,
+                    hero_bundle.actor.y as i16,
+                );
+
+                hero_bundle.play();
+
+                commands.spawn(hero_bundle);
+
+            }
         }
     }
 
@@ -143,4 +134,9 @@ pub fn make_heros(
 
     commands.insert_resource(grid);
     commands.insert_resource(NextState(Some(GameState::Griding)));
+}
+
+
+pub fn order_z(y:f32) -> f32 {
+    Z_MID - y * Z_SCALE
 }
