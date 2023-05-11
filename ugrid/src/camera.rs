@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::action::*;
+use common::*;
 
 const CAMERA_SPEED: f32 = 5.0;
 

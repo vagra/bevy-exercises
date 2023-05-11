@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
 
-use crate::GameState;
+use common::*;
 use crate::ugrid::Grid;
 
 

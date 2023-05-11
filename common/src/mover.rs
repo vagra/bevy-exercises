@@ -3,7 +3,7 @@ use rand::Rng;
 use bevy::prelude::*;
 
 use crate::{
-    action::*,
+    *,
     animation::*,
 };
 

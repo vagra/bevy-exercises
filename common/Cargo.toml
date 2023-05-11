@@ -1,5 +1,5 @@
 [package]
-name = "dgrid"
+name = "common"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,5 +11,3 @@ rand = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 grid = { git = "https://github.com/vagra/grid.git" }
-common = { path = "../common", version = "0.1" }
-bevy-inspector-egui = { version = "0.18" }

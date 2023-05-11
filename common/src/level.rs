@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use crate::{
     *,
     meta::*,
-    actor::*,
+    bundle::*,
 };
 
 

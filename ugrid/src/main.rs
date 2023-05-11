@@ -5,26 +5,27 @@ use bevy::{
 
 mod action;
 mod actor;
-mod animation;
 mod assets;
 mod camera;
 mod hero;
 mod info;
-mod level;
-mod meta;
-mod mover;
 mod ugrid;
+
+
+use common::{
+    *,
+    animation::*,
+    meta::*,
+    level::*,
+};
+
 
 use crate::{
     action::*,
-    animation::*,
     assets::*,
     camera::*,
     hero::*,
     info::*,
-    level::*,
-    meta::*,
-    mover::*,
     ugrid::*,
 };
 
@@ -34,17 +35,6 @@ const ASSETS_PATH: &str = "../assets/";
 const LEVEL_YAML: &str = "ugrid/game.level.yaml";
 const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
 
-
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
-enum GameState {
-    #[default]
-    Loading,
-    Spawning,
-    Griding,
-    Infoing,
-    Playing,
-    Paused,
-}
 
 
 fn main() {

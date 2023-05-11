@@ -5,7 +5,7 @@ use bevy::{
     asset::*,
 };
 
-use crate::meta::*;
+use common::meta::*;
 
 
 pub fn register(app: &mut App) {

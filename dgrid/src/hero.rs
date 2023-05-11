@@ -3,12 +3,17 @@ use bevy::{
     sprite::*,
 };
 
+use common::{
+    *,
+    bundle::*,
+    animation::*,
+    meta::*,
+    mover::*,
+};
+
 use crate::{
     *,
     actor::*,
-    action::*,
-    animation::*,
-    meta::*,
 };
 
 const MAX_SPAWN: u32 = 10000;
@@ -140,7 +145,3 @@ pub fn make_heros(
     commands.insert_resource(NextState(Some(GameState::Griding)));
 }
 
-
-pub fn order_z(y:f32) -> f32 {
-    Z_MID - y * Z_SCALE
-}

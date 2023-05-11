@@ -2,8 +2,6 @@ use rand::Rng;
 
 use bevy::prelude::*;
 
-use crate::meta::*;
-
 pub const REGION: Rect = Rect{
     min: Vec2 { x: -800.0, y: -400.0 },
     max: Vec2 { x: 800.0, y: 400.0 },
@@ -47,30 +45,6 @@ impl Actor {
         }
     }
 }
-
-
-#[derive(Component)]
-pub struct SpawnCount(pub u32);
-
-
-#[derive(Bundle)]
-pub struct ActorBundle {
-    spawn_count: SpawnCount,
-    actor_handle: Handle<ActorMeta>,
-}
-
-
-impl ActorBundle {
-
-    pub fn new(spawn_meta: &ActorSpawnMeta) -> Self {
-
-        Self {
-            spawn_count: SpawnCount(spawn_meta.count),
-            actor_handle: spawn_meta.actor_handle.clone(),
-        }
-    }
-}
-
 
 fn gen_rand_pos() -> (f32, f32) {
     let mut rng = rand::thread_rng();

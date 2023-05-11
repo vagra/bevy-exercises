@@ -3,8 +3,8 @@ use rand::Rng;
 use bevy::prelude::*;
 
 use crate::{
+    *,
     meta::*,
-    action::*,
 };
 
 
