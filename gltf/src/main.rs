@@ -37,7 +37,7 @@ fn main() {
             (
                 update_info,
                 keyboard_control,
-                animate_actor,
+                /*animate_actor,*/
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -100,8 +100,8 @@ fn setup_scene(
     // camera
     commands.spawn((
         Camera3dBundle {
-            transform: Transform::from_xyz(10.0, 5.0, 10.0)
-                .looking_at(Vec3::new(0.0, 2.0, 0.0), Vec3::Y),
+            transform: Transform::from_xyz(0.0, 5.0, 20.0)
+                .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
             ..default()
         },
     ));
@@ -125,7 +125,7 @@ fn setup_scene(
     // plane
     commands.spawn(PbrBundle {
         mesh: meshes.add(
-            shape::Plane::from_size(10.0).into()
+            shape::Plane::from_size(20.0).into()
         ),
         material: materials.add(
             Color::rgb(0.3, 0.5, 0.3).into()
@@ -133,14 +133,28 @@ fn setup_scene(
         ..default()
     });
 
-    // gltf
-    commands.spawn(((
-        SceneBundle {
-            scene: asset_server.load(format!("{MODEL_GLTF}#Scene0")),
-            ..default()
-        }),
-        Actor
-    ));
+
+    for i in 0..15 {
+        for j in 0..15 {
+            // gltf
+            commands.spawn(((
+                SceneBundle {
+                    scene: asset_server.load(format!("{MODEL_GLTF}#Scene0")),
+                    
+                    transform: Transform {
+                        translation: Vec3::new(
+                            i as f32 * 2.0 - 15.0, 0.0, j as f32 * 2.0 - 15.0
+                        ),
+                        scale: Vec3::new( 0.5, 0.5, 0.5 ),
+                        ..default()
+                    },
+
+                    ..default()
+                }),
+                Actor
+            ));
+        }
+    }
     
 }
 
@@ -149,28 +163,34 @@ fn setup_scene(
 // Once the scene is loaded, start the animation
 fn loaded(
     animations: Res<Animations>,
-    mut player: Query<&mut AnimationPlayer>,
+    mut query: Query<&mut AnimationPlayer>,
     mut done: Local<bool>,
 ) {
     if !*done {
-        if let Ok(mut player) = player.get_single_mut() {
+
+        for mut player in query.iter_mut() {
 
             player.play(animations.0[0].clone_weak()).repeat();
-            *done = true;
+            
         }
+
+        *done = true;
     }
 }
 
 
 
 fn keyboard_control(
+    mut query: Query<(
+        &mut AnimationPlayer,
+        &mut Transform,
+    )>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut player: Query<&mut AnimationPlayer>,
     animations: Res<Animations>,
     mut action: Local<usize>,
 ) {
 
-    if let Ok(mut player) = player.get_single_mut() {
+    for (mut player, mut transform) in query.iter_mut() {
 
         if keyboard_input.just_pressed(KeyCode::Space) {
             if player.is_paused() {
@@ -209,16 +229,32 @@ fn keyboard_control(
                 )
                 .repeat();
         }
+
+        if keyboard_input.pressed(KeyCode::W) {
+            transform.translation.z -= 0.1;
+        }
+
+        if keyboard_input.pressed(KeyCode::S) {
+            transform.translation.z += 0.1;
+        }
+
+        if keyboard_input.pressed(KeyCode::A) {
+            transform.translation.x -= 0.1;
+        }
+
+        if keyboard_input.pressed(KeyCode::D) {
+            transform.translation.x += 0.1;
+        }
     }
 }
 
 
 fn animate_actor(
-    time: Res<Time>,
     mut query: Query<
         &mut Transform,
         With<Actor>
     >,
+    time: Res<Time>,
 ) {
     for mut transform in &mut query {
         transform.rotation = Quat::from_euler(
