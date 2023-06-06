@@ -249,7 +249,7 @@ fn keyboard_control(
 }
 
 
-fn animate_actor(
+fn _animate_actor(
     mut query: Query<
         &mut Transform,
         With<Actor>
