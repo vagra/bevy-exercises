@@ -10,8 +10,8 @@ use std::time::Duration;
 const ASSETS_PATH: &str = "../assets/";
 const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
 const MDL_GLTF: &str = "gltf/kid.gltf";
-const WPN_GLTF: &str = "gltf/wpn.gltf";
 const TIME_STEP: f32 = 1.0 / 60.0;
+const RUN_SPEED: f32 = 0.5;
 
 fn main() {
     App::new()
@@ -30,7 +30,6 @@ fn main() {
         .add_plugin(EntityCountDiagnosticsPlugin::default())
         .add_startup_system(setup_scene)
         .add_startup_system(setup_info)
-        .add_system(actor_loaded)
         .add_systems(
             (
                 update_info,
@@ -125,7 +124,7 @@ fn setup_scene(
 
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(20.0).into()),
+        mesh: meshes.add(shape::Plane::from_size(200.0).into()),
         material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..default()
     });
@@ -138,8 +137,9 @@ fn setup_scene(
             scene: actor,
 
             transform: Transform {
-                translation: Vec3::new( 0.0, 0.0, 0.0 ),
-                scale: Vec3::new(0.5, 0.5, 0.5),
+                translation: Vec3::ZERO,
+                rotation: Quat::IDENTITY,
+                scale: Vec3::new(0.2, 0.2, 0.2),
                 ..default()
             },
 
@@ -151,84 +151,51 @@ fn setup_scene(
     
 }
 
-// Once the scene is loaded, start the animation
-fn actor_loaded(
-    animations: Res<Animations>,
-    mut query: Query<&mut AnimationPlayer>,
-    mut done: Local<bool>,
-) {
-    if !*done {
-        for mut player in query.iter_mut() {
-            player.play(animations.0[0].clone_weak()).repeat();
-        }
-
-        *done = true;
-    }
-}
-
 
 fn keyboard_control(
     mut query: Query<(
+        &Name,
         &mut AnimationPlayer,
-        &mut Transform
+        &mut Transform,
     )>,
     keyboard_input: Res<Input<KeyCode>>,
     animations: Res<Animations>,
-    mut action: Local<usize>,
 ) {
-    for (mut player, mut transform) in query.iter_mut() {
-        if keyboard_input.just_pressed(KeyCode::Space) {
-            if player.is_paused() {
-                player.resume();
-            } else {
-                player.pause();
-            }
+    for (name, mut player, mut transform) in query.iter_mut() {
+
+        if name.as_str() != "GltfNode40" {
+            continue;
         }
 
-        if keyboard_input.just_pressed(KeyCode::Up) {
-            let speed = player.speed();
-            player.set_speed(speed * 1.2);
-        }
+        let mut run: bool = false;
 
-        if keyboard_input.just_pressed(KeyCode::Down) {
-            let speed = player.speed();
-            player.set_speed(speed * 0.8);
-        }
-
-        if keyboard_input.just_pressed(KeyCode::Right) {
-            *action = (*action + 1) % animations.0.len();
+        if let Some(dir) = get_dir(
+            keyboard_input.pressed(KeyCode::Up),
+            keyboard_input.pressed(KeyCode::Down),
+            keyboard_input.pressed(KeyCode::Left),
+            keyboard_input.pressed(KeyCode::Right),
+        ) {
+            let angle: f32 = dir as f32 * PI * 0.25;
+            let offset: Vec3 = - RUN_SPEED * transform.forward();
+            transform.rotation = Quat::from_rotation_y(angle);
+            transform.translation.x += offset.x;
+            transform.translation.z += offset.z;
             player
                 .play_with_transition(
-                    animations.0[*action].clone_weak(),
-                    Duration::from_millis(500),
+                    animations.0[3].clone_weak(),
+                    Duration::from_millis(100),
                 )
+                .set_speed(0.5)
                 .repeat();
         }
-
-        if keyboard_input.just_pressed(KeyCode::Left) {
-            *action = (*action + animations.0.len() - 1) % animations.0.len();
+        else {
             player
                 .play_with_transition(
-                    animations.0[*action].clone_weak(),
+                    animations.0[1].clone_weak(),
                     Duration::from_millis(500),
                 )
+                .set_speed(0.5)
                 .repeat();
-        }
-
-        if keyboard_input.pressed(KeyCode::W) {
-            transform.translation.z -= 0.1;
-        }
-
-        if keyboard_input.pressed(KeyCode::S) {
-            transform.translation.z += 0.1;
-        }
-
-        if keyboard_input.pressed(KeyCode::A) {
-            transform.translation.x -= 0.1;
-        }
-
-        if keyboard_input.pressed(KeyCode::D) {
-            transform.translation.x += 0.1;
         }
     }
 }
@@ -278,4 +245,56 @@ fn update_info(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text, With<I
             text.sections[4].value = format!("{value:.0}");
         }
     }
+}
+
+
+fn get_dir(up:bool, down:bool, left:bool, right:bool) -> Option<usize> {
+    let mut l = left;
+    let mut r = right;
+    let mut u = up;
+    let mut d = down;
+
+    if l && r {
+        l = false;
+        r = false;
+    }
+
+    if u && d {
+        u = false;
+        d = false;
+    }
+
+    if l && u {
+        return Some(5);
+    }
+
+    if u && r {
+        return Some(3);
+    }
+
+    if r && d {
+        return Some(1);
+    }
+
+    if d && l {
+        return Some(7);
+    }
+
+    if l {
+        return Some(6);
+    }
+
+    if u {
+        return Some(4);
+    }
+
+    if r {
+        return Some(2);
+    }
+
+    if d {
+        return Some(0);
+    }
+
+    return None;
 }
