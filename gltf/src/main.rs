@@ -148,28 +148,6 @@ fn setup_scene(
         Actor,
     ));
 
-    // gltf - wpn
-    let weapon_mesh: Handle<Mesh> = asset_server.load(format!("{WPN_GLTF}#Mesh0/Primitive0"));
-    let weapon_mat: Handle<StandardMaterial> = asset_server.load(format!("{WPN_GLTF}#Material0"));
-
-    info!("weapon_mesh: {:?}", &weapon_mesh);
-    info!("weapon_mat: {:?}", &weapon_mat);
-
-    commands.spawn((
-        (MaterialMeshBundle {
-            mesh: weapon_mesh.clone(),
-            material: weapon_mat.clone(),
-
-            transform: Transform {
-                translation: Vec3::new( 0.0, 0.0, 0.0 ),
-                scale: Vec3::new(0.5, 0.5, 0.5),
-                ..default()
-            },
-
-            ..default()
-        }),
-        Weapon,
-    ));
     
 }
 
