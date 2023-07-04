@@ -5,13 +5,18 @@ use bevy::pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use std::f32::consts::*;
-use std::time::Duration;
+
+mod actor;
+
+use actor::*;
+
 
 const ASSETS_PATH: &str = "../assets/";
 const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
 const MDL_GLTF: &str = "gltf/kid.gltf";
 const TIME_STEP: f32 = 1.0 / 60.0;
-const RUN_SPEED: f32 = 0.5;
+const RUN_SPEED: f32 = 0.1;
+
 
 fn main() {
     App::new()
@@ -42,17 +47,7 @@ fn main() {
 }
 
 #[derive(Component)]
-struct Actor;
-
-
-#[derive(Component)]
-struct Weapon;
-
-#[derive(Component)]
 struct Info;
-
-#[derive(Resource)]
-struct Animations(Vec<Handle<AnimationClip>>);
 
 fn setup_scene(
     mut commands: Commands,
@@ -130,11 +125,11 @@ fn setup_scene(
     });
 
     // gltf - mdl
-    let actor: Handle<Scene> = asset_server.load(format!("{MDL_GLTF}#Scene0"));
+    let model: Handle<Scene> = asset_server.load(format!("{MDL_GLTF}#Scene0"));
 
     commands.spawn((
         (SceneBundle {
-            scene: actor,
+            scene: model,
 
             transform: Transform {
                 translation: Vec3::ZERO,
@@ -145,60 +140,45 @@ fn setup_scene(
 
             ..default()
         }),
-        Actor,
+        Actor::default()
     ));
-
-    
 }
 
 
 fn keyboard_control(
-    mut query: Query<(
-        &Name,
-        &mut AnimationPlayer,
+    mut actor_query: Query<(
+        &Actor,
         &mut Transform,
     )>,
+    mut player_query: Query<
+        &mut AnimationPlayer,
+    >,
     keyboard_input: Res<Input<KeyCode>>,
     animations: Res<Animations>,
 ) {
-    for (name, mut player, mut transform) in query.iter_mut() {
-
-        if name.as_str() != "GltfNode40" {
-            continue;
-        }
-
-        let mut run: bool = false;
-
-        if let Some(dir) = get_dir(
-            keyboard_input.pressed(KeyCode::Up),
-            keyboard_input.pressed(KeyCode::Down),
-            keyboard_input.pressed(KeyCode::Left),
-            keyboard_input.pressed(KeyCode::Right),
-        ) {
-            let angle: f32 = dir as f32 * PI * 0.25;
-            let offset: Vec3 = - RUN_SPEED * transform.forward();
-            transform.rotation = Quat::from_rotation_y(angle);
-            transform.translation.x += offset.x;
-            transform.translation.z += offset.z;
-            player
-                .play_with_transition(
-                    animations.0[3].clone_weak(),
-                    Duration::from_millis(100),
-                )
-                .set_speed(0.5)
-                .repeat();
-        }
-        else {
-            player
-                .play_with_transition(
-                    animations.0[1].clone_weak(),
-                    Duration::from_millis(500),
-                )
-                .set_speed(0.5)
-                .repeat();
+    for (actor, mut transform) in actor_query.iter_mut() {
+        if let Ok(mut player) = player_query.get_single_mut() {
+            
+            if let Some(dir) = key2dir(
+                keyboard_input.pressed(KeyCode::Left),
+                keyboard_input.pressed(KeyCode::Right),
+                keyboard_input.pressed(KeyCode::Up),
+                keyboard_input.pressed(KeyCode::Down),
+            ) {
+                let angle: f32 = dir as f32 * PI * 0.25;
+                let offset: Vec3 = - RUN_SPEED * transform.forward();
+                transform.rotation = Quat::from_rotation_y(angle);
+                transform.translation.x += offset.x;
+                transform.translation.z += offset.z;
+                actor.run(&mut player, &animations);
+            }
+            else {
+                actor.stand(&mut player, &animations);
+            }
         }
     }
 }
+
 
 fn setup_info(mut commands: Commands, asset_server: Res<AssetServer>) {
     // font
@@ -231,6 +211,7 @@ fn setup_info(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
+
 fn update_info(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text, With<Info>>) {
     if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.value() {
@@ -248,53 +229,35 @@ fn update_info(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text, With<I
 }
 
 
-fn get_dir(up:bool, down:bool, left:bool, right:bool) -> Option<usize> {
-    let mut l = left;
-    let mut r = right;
-    let mut u = up;
-    let mut d = down;
+fn key2dir(l:bool, r:bool, u:bool, d:bool) -> Option<usize> {
+    let mut li = l as usize;
+    let mut ri = r as usize;
+    let mut ui = u as usize;
+    let mut di = d as usize;
 
     if l && r {
-        l = false;
-        r = false;
+        li = 0;
+        ri = 0;
     }
 
     if u && d {
-        u = false;
-        d = false;
+        ui = 0;
+        di = 0;
     }
 
-    if l && u {
-        return Some(5);
+    let pos: usize = (di << 3) + (li << 2) + (ui << 1) + ri;
+
+    match pos {
+        //dlur
+        0b0001 => Some(2),
+        0b0010 => Some(4),
+        0b0100 => Some(6),
+        0b1000 => Some(0),
+        0b0011 => Some(3),
+        0b0110 => Some(5),
+        0b1100 => Some(7),
+        0b1001 => Some(1),
+        _ => None,
     }
 
-    if u && r {
-        return Some(3);
-    }
-
-    if r && d {
-        return Some(1);
-    }
-
-    if d && l {
-        return Some(7);
-    }
-
-    if l {
-        return Some(6);
-    }
-
-    if u {
-        return Some(4);
-    }
-
-    if r {
-        return Some(2);
-    }
-
-    if d {
-        return Some(0);
-    }
-
-    return None;
 }
