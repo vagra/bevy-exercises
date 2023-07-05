@@ -147,7 +147,7 @@ fn setup_scene(
 
 fn keyboard_control(
     mut actor_query: Query<(
-        &Actor,
+        &mut Actor,
         &mut Transform,
     )>,
     mut player_query: Query<
@@ -156,7 +156,7 @@ fn keyboard_control(
     keyboard_input: Res<Input<KeyCode>>,
     animations: Res<Animations>,
 ) {
-    for (actor, mut transform) in actor_query.iter_mut() {
+    for (mut actor, mut transform) in actor_query.iter_mut() {
         if let Ok(mut player) = player_query.get_single_mut() {
             
             if let Some(dir) = key2dir(
@@ -165,16 +165,17 @@ fn keyboard_control(
                 keyboard_input.pressed(KeyCode::Up),
                 keyboard_input.pressed(KeyCode::Down),
             ) {
-                let angle: f32 = dir as f32 * PI * 0.25;
-                let offset: Vec3 = - RUN_SPEED * transform.forward();
-                transform.rotation = Quat::from_rotation_y(angle);
-                transform.translation.x += offset.x;
-                transform.translation.z += offset.z;
+                actor.set_dir(dir);
                 actor.run(&mut player, &animations);
+                actor.moving();
+                transform.translation = actor.position;
             }
             else {
                 actor.stand(&mut player, &animations);
             }
+
+            actor.turning();
+            transform.rotation = Quat::from_rotation_y(actor.curr_redian());
         }
     }
 }
