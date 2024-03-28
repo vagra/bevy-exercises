@@ -12,7 +12,6 @@ use crate::{
 pub struct AnimatedSpriteSheetBundle {
     pub animation: Animation,
 
-    #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
 }
 
@@ -141,11 +140,11 @@ impl Animation {
 pub fn animating(
     mut query: Query<(
         &mut Animation,
-        &mut TextureAtlasSprite, 
+        &mut TextureAtlas, 
     )>,
     time: Res<Time>,
 ) {
-    for (mut animation, mut texture_atlas_sprite) in query.iter_mut() {
+    for (mut animation, mut atlas) in query.iter_mut() {
 
         if animation.is_finished() && !animation.is_repeating() {
             continue;
@@ -168,7 +167,7 @@ pub fn animating(
         }
 
         if let Some(frame) = animation.get_current_frame() {
-            texture_atlas_sprite.index = frame;
+            atlas.index = frame;
         }
     }
 }

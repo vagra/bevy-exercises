@@ -1,6 +1,6 @@
-use bevy::core_pipeline::clear_color::ClearColor;
+use bevy::render::camera::ClearColor;
 use bevy::diagnostic::*;
-use bevy::math::*;
+use bevy::math::{*, primitives::Plane3d};
 use bevy::pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -14,11 +14,11 @@ use actor::*;
 const ASSETS_PATH: &str = "../assets/";
 const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
 const MDL_GLTF: &str = "gltf/kid.gltf";
-const TIME_STEP: f32 = 1.0 / 60.0;
-const RUN_SPEED: f32 = 0.1;
+const TIME_STEP: f64 = 1.0 / 60.0;
 
 
 fn main() {
+
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(AmbientLight {
@@ -26,23 +26,17 @@ fn main() {
             brightness: 1.0 / 5.0f32,
         })
         .insert_resource(DirectionalLightShadowMap { size: 2048 })
+        .insert_resource(Time::<Fixed>::from_seconds(TIME_STEP))
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-            asset_folder: ASSETS_PATH.to_string(),
+            file_path: ASSETS_PATH.to_string(),
             ..Default::default()
         }))
-        .add_plugin(WorldInspectorPlugin::new())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(EntityCountDiagnosticsPlugin::default())
-        .add_startup_system(setup_scene)
-        .add_startup_system(setup_info)
-        .add_systems(
-            (
-                update_info,
-                keyboard_control,
-            )
-                .in_schedule(CoreSchedule::FixedUpdate),
-        )
-        .insert_resource(FixedTime::new_from_secs(TIME_STEP))
+        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(EntityCountDiagnosticsPlugin::default())
+        .add_systems(Startup, setup_scene)
+        .add_systems(Startup, setup_info)
+        .add_systems(FixedUpdate, (update_info, keyboard_control))
         .run();
 }
 
@@ -119,8 +113,8 @@ fn setup_scene(
 
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(200.0).into()),
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        mesh: meshes.add(Plane3d::default().mesh().size(200.0, 200.0)),
+        material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
         ..default()
     });
 
@@ -153,17 +147,17 @@ fn keyboard_control(
     mut player_query: Query<
         &mut AnimationPlayer,
     >,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     animations: Res<Animations>,
 ) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
         if let Ok(mut player) = player_query.get_single_mut() {
             
             if let Some(dir) = key2dir(
-                keyboard_input.pressed(KeyCode::Left),
-                keyboard_input.pressed(KeyCode::Right),
-                keyboard_input.pressed(KeyCode::Up),
-                keyboard_input.pressed(KeyCode::Down),
+                keyboard_input.pressed(KeyCode::ArrowLeft),
+                keyboard_input.pressed(KeyCode::ArrowRight),
+                keyboard_input.pressed(KeyCode::ArrowUp),
+                keyboard_input.pressed(KeyCode::ArrowDown),
             ) {
                 actor.set_dir(dir);
                 actor.run(&mut player, &animations);
@@ -201,11 +195,8 @@ fn setup_info(mut commands: Commands, asset_server: Res<AssetServer>) {
         ])
         .with_style(Style {
             position_type: PositionType::Absolute,
-            position: UiRect {
-                right: Val::Px(8.0),
-                top: Val::Px(8.0),
-                ..default()
-            },
+            right: Val::Px(8.0),
+            top: Val::Px(8.0),
             ..default()
         }),
         Info,
@@ -213,15 +204,15 @@ fn setup_info(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 
-fn update_info(diagnostics: Res<Diagnostics>, mut query: Query<&mut Text, With<Info>>) {
-    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+fn update_info(diagnostics: Res<DiagnosticsStore>, mut query: Query<&mut Text, With<Info>>) {
+    if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.value() {
             let mut text = query.single_mut();
             text.sections[2].value = format!("{value:.0}");
         }
     }
 
-    if let Some(num) = diagnostics.get(EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
+    if let Some(num) = diagnostics.get(&EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
         if let Some(value) = num.value() {
             let mut text = query.single_mut();
             text.sections[4].value = format!("{value:.0}");

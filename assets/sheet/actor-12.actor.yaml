@@ -1,20 +1,18 @@
-id: 12
 name: Actor-12
 
-sprite_sheet:
-  image: actor-12.png
-  tile_size: [100, 100]
-  columns: 9
-  rows: 8
-  fps: 0.15
+image: actor-12.png
+tile_size: [100, 100]
+columns: 9
+rows: 8
+fps: 0.15
 
-  animations:
-    walk:
-      frames: [0, 1, 2, 1]
-      repeat: true
-    run:
-      frames: [3, 4, 5, 4]
-      repeat: true
-    raise:
-      frames: [6, 7, 8, 7]
-      repeat: true
+animations:
+  walk:
+    frames: [0, 1, 2, 1]
+    repeat: true
+  run:
+    frames: [3, 4, 5, 4]
+    repeat: true
+  raise:
+    frames: [6, 7, 8, 7]
+    repeat: true

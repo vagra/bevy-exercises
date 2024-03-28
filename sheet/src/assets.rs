@@ -1,136 +1,108 @@
-use std::path::*;
-
+use std::collections::HashMap;
 use bevy::{
+    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext, *},
     prelude::*,
-    asset::*,
 };
+use serde::Deserialize;
+use crate::*;
 
-use crate::meta::*;
+
+#[derive(Resource)]
+pub struct ActorHandles(pub Vec<ActorHandle>);
 
 
-pub fn register(app: &mut App) {
-    app.register_type::<TextureAtlasSprite>()
-        .add_asset::<LevelMeta>()
-        .add_asset_loader(LevelMetaLoader)
-        .add_asset::<ActorMeta>()
-        .add_asset_loader(ActorLoader);
+#[derive(Asset, Resource, Component, TypePath, Deref, DerefMut)]
+pub struct ActorHandle(pub Handle<ActorAsset>);
+
+
+#[derive(Resource, Deref, DerefMut)]
+pub struct FontHandle(pub Handle<Font>);
+
+
+#[derive(Asset, Component, TypePath, Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ActorAsset {
+    pub name: String,
+    pub image: String,
+    pub tile_size: UVec2,
+    pub columns: usize,
+    pub rows: usize,
+    pub fps: f32,
+    pub animations: HashMap<String, ClipMeta>,
+
+    #[serde(skip)]
+    pub layout_handle: Handle<TextureAtlasLayout>,
+    #[serde(skip)]
+    pub image_handle: Handle<Image>,
 }
 
 
-pub struct LevelMetaLoader;
+#[derive(TypePath, Deserialize, Default, Clone, Debug, Asset)]
+#[serde(deny_unknown_fields)]
+pub struct ClipMeta {
+    #[serde(skip)]
+    pub name: String,
 
-impl AssetLoader for LevelMetaLoader {
-    fn load<'a>(
-        &'a self,
-        bytes: &'a [u8],
-        load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<(), Error>> {
+    pub frames: Vec<usize>,
 
-        Box::pin(async move {
-            
-            let mut meta: LevelMeta = serde_yaml::from_slice(bytes)?;
-            info!("loaded Level asset");
-
-            let self_path = load_context.path();
-
-            let mut dependencies = Vec::new();
-
-            for spawn in &mut meta.spawns {
-
-                let (actor_path, actor_handle) = get_relative_asset(
-                    load_context, self_path, &spawn.actor);
-                dependencies.push(actor_path);
-
-                spawn.actor_handle = actor_handle;
-            }
-
-            load_context
-                .set_default_asset(LoadedAsset::new(meta)
-                .with_dependencies(dependencies));
-
-            Ok(())
-        })
-    }
-
-    fn extensions(&self) -> &[&str] {
-        &["level.yml", "level.yaml"]
-    }
+    #[serde(default)]
+    pub repeat: bool,
 }
 
 
+#[derive(Default)]
 pub struct ActorLoader;
 
+
 impl AssetLoader for ActorLoader {
+    type Asset = ActorAsset;
+    type Settings = ();
+    type Error = anyhow::Error;
+
     fn load<'a>(
         &'a self,
-        bytes: &'a [u8],
+        reader: &'a mut Reader,
+        _settings: &'a (),
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<(), Error>> {
+    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
 
         Box::pin(async move {
+            let mut bytes = Vec::new();
+            reader.read_to_end(&mut bytes).await?;
 
-            let mut meta: ActorMeta = serde_yaml::from_slice(bytes)?;
-            info!("loaded Actor asset {}", meta.name);
-
-            let self_path = load_context.path();
-
-            let (texture_path, texture_handle) = get_relative_asset(
-                load_context, self_path, &meta.sprite_sheet.image);
+            let mut actor: ActorAsset = serde_yaml::from_slice(&bytes)?;
+            info!("load actor asset {}", actor.name);
             
-            let texture_atlas = TextureAtlas::from_grid(
-                texture_handle,
-                meta.sprite_sheet.tile_size.as_vec2(),
-                meta.sprite_sheet.columns,
-                meta.sprite_sheet.rows,
+            let layout = TextureAtlasLayout::from_grid(
+                actor.tile_size.as_vec2(),
+                actor.columns,
+                actor.rows,
                 None, None);
 
-            let atlas_handle = load_context.set_labeled_asset(
-                format!("atlas_{}", &meta.sprite_sheet.image).as_str(),
-                LoadedAsset::new(texture_atlas)
-                    .with_dependency(texture_path)
+            let layout_handle = load_context.add_labeled_asset(
+                format!("layout_{}", &actor.image),
+                layout
             );
 
-            meta.sprite_sheet.atlas_handle = atlas_handle;
+            actor.layout_handle = layout_handle;
+
             
-            for (name, clip) in meta.sprite_sheet.animations.iter_mut() {
+            let image_path = format!("{BASE_PATH}/{}", actor.image.clone());
+
+            let image_handle: Handle<Image> = load_context.load(image_path);
+
+            actor.image_handle = image_handle;
+            
+            
+            for (name, clip) in actor.animations.iter_mut() {
                 clip.name = name.clone();
             }
 
-            load_context.set_default_asset(
-                LoadedAsset::new(meta)
-            );
-
-            Ok(())
+            Ok(actor)
         })
     }
 
     fn extensions(&self) -> &[&str] {
         &["actor.yml", "actor.yaml"]
     }
-}
-
-fn relative_asset_path(asset_path: &Path, relative_path: &str) -> PathBuf {
-    let is_relative = !relative_path.starts_with('/');
-
-    if is_relative {
-        let base = asset_path.parent().unwrap_or_else(|| Path::new(""));
-        base.join(relative_path)
-    } else {
-        Path::new(relative_path)
-            .strip_prefix("/")
-            .unwrap()
-            .to_owned()
-    }
-}
-
-fn get_relative_asset<T: Asset>(
-    load_context: &LoadContext,
-    self_path: &Path,
-    relative_path: &str,
-) -> (AssetPath<'static>, Handle<T>) {
-    let asset_path = relative_asset_path(self_path, relative_path);
-    let asset_path = AssetPath::new(asset_path, None);
-    let handle = load_context.get_handle(asset_path.clone());
-
-    (asset_path, handle)
 }

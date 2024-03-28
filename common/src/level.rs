@@ -15,7 +15,7 @@ pub fn load_level(
 ) {
     info!("load Level...");
 
-    if let Some(level) = level_assets.get(&level_handle) {
+    if let Some(level) = level_assets.get(&**level_handle) {
         for spawn in &level.spawns {
             info!("load {}  count: {}", spawn.actor, spawn.count);
             

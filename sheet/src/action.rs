@@ -2,7 +2,7 @@ use rand::Rng;
 use bevy::prelude::*;
 
 use crate::{
-    actor::*,
+    hero::*,
     animation::*,
 };
 
@@ -85,6 +85,7 @@ pub fn backing(
         &mut Animation,
     )>
 ) {
+    
     for (transform, mut action, mut animation) in query.iter_mut() {
         if let Some(back_direction) = check_region(
             transform.translation.x,
@@ -107,6 +108,7 @@ pub fn moving(
         &mut MoveAction,
     )>
 ) {
+    
     for (mut transform, action) in query.iter_mut() {
         transform.translation.x += action.speed * VECTORES[action.direction].x;
         transform.translation.y += action.speed * VECTORES[action.direction].y;
@@ -124,6 +126,7 @@ pub fn random(
     )>,
     time: Res<Time>,
 ) {
+    
     for (mut move_action, mut animation) in query.iter_mut() {
 
         move_action.timer.tick(time.delta());

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
 use bevy::math::*;
-use bevy::core_pipeline::clear_color::ClearColor;
+use bevy::render::camera::ClearColor;
 use rand::Rng;
 
 const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
@@ -13,23 +13,22 @@ const TIME_STEP: f32 = 1.0 / 60.0;
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
+        .insert_resource(Time::<Fixed>::from_seconds(TIME_STEP as f64))
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-            asset_folder: "../assets".to_string(),
+            file_path: "../assets".to_string(),
             ..Default::default()
         }))
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(EntityCountDiagnosticsPlugin::default())
-        .add_startup_system(setup)
-        .add_systems(
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(EntityCountDiagnosticsPlugin::default())
+        .add_systems(Startup, setup)
+        .add_systems(FixedUpdate,
             (
                 update_general,
                 update_soldiers,
                 update_info,
                 drop_old,
             )
-            .in_schedule(CoreSchedule::FixedUpdate),
         )
-        .insert_resource(FixedTime::new_from_secs(TIME_STEP))
         .run();
 }
 
@@ -84,11 +83,8 @@ fn setup(
         ])
         .with_style(Style {
             position_type: PositionType::Absolute,
-            position: UiRect {
-                left: Val::Px(8.0),
-                top: Val::Px(8.0),
-                ..default()
-            },
+            left: Val::Px(8.0),
+            top: Val::Px(8.0),
             ..default()
         }),
         InfoText
@@ -133,7 +129,7 @@ fn update_general(
     let (mut general, mut transform) = query.single_mut();
         
     transform.rotate_z(general.rotate_speed * TIME_STEP);
-    let forward: Vec3 = transform.up();
+    let forward: Vec3 = *transform.up();
 
     transform.translation += forward * general.move_speed * TIME_STEP;
     let position = transform.translation;
@@ -196,7 +192,7 @@ fn update_soldiers(
     for (soldier, mut transform, mut sprite) in &mut query {
 
         transform.rotate_z(soldier.rotate_speed * TIME_STEP);
-        let forward: Vec3 = transform.up();
+        let forward: Vec3 = *transform.up();
 
         transform.translation += forward * soldier.move_speed * TIME_STEP;
         let position = transform.translation;
@@ -245,17 +241,17 @@ fn drop_old(
 }
 
 fn update_info(
-    diagnostics: Res<Diagnostics>,
+    diagnostics: Res<DiagnosticsStore>,
     mut query: Query<&mut Text, With<InfoText>>
 ) {
-    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+    if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.value() {
             let mut text = query.single_mut();
             text.sections[2].value =  format!("{value:.0}");
         }
     }
 
-    if let Some(num) = diagnostics.get(EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
+    if let Some(num) = diagnostics.get(&EntityCountDiagnosticsPlugin::ENTITY_COUNT) {
         if let Some(value) = num.value() {
             let mut text = query.single_mut();
             text.sections[4].value =  format!("{value:.0}");
