@@ -4,10 +4,12 @@ use bevy::{
 };
 use rand::Rng;
 
-use crate::{
-    *,
-    action::*,
+use crate::*;
+
+use common::{
+    assets::*,
     animation::*,
+    mover::*,
 };
 
 
@@ -15,14 +17,15 @@ pub const REGION: Rect = Rect{
     min: Vec2 { x: -800.0, y: -400.0 },
     max: Vec2 { x: 800.0, y: 400.0 },
 };
-const SCALE: Vec3 = Vec3 { x: 0.8, y: 0.8, z: 1.0 };
+const SCALE: Vec3 = Vec3 { x: 0.5, y: 0.5, z: 1.0 };
 const ANCHOR: Vec2 = Vec2 {x: 0.0, y: -0.4};
+const SPAWN_NUM: i32 = 200;
 
 
 #[derive(Bundle)]
 pub struct HeroBundle {
     pub name: Name,
-    pub move_action: MoveAction,
+    pub mover: Mover,
     pub animation: Animation,
     pub sprite_sheet: SpriteSheetBundle,
 }
@@ -30,10 +33,9 @@ pub struct HeroBundle {
 
 impl HeroBundle {
 
-    pub fn instantiate(
-        commands: &mut Commands,
+    pub fn new(
         actor: &ActorAsset,
-    ) {
+    ) -> Self {
 
         let mut rng = rand::thread_rng();
 
@@ -49,11 +51,11 @@ impl HeroBundle {
             ..default()
         };
 
-        let mut hero_bundle = HeroBundle {
+        Self {
 
             name: Name::new(actor.name.clone()),
 
-            move_action: MoveAction::new(),
+            mover: Mover::new(),
             
             animation: Animation::new(
                 &actor,
@@ -73,21 +75,32 @@ impl HeroBundle {
 
                 texture: actor.image_handle.clone(),
 
-                transform: transform,
+                transform,
 
                 ..Default::default()
             },
 
-        };
+        }
+    }
 
-        hero_bundle.animation.play(
-            &hero_bundle.move_action.animation,
-            &hero_bundle.move_action.direction,
+    pub fn spawn(
+        commands: &mut Commands,
+        actor: &ActorAsset,
+    ) {
+        let mut hero = HeroBundle::new(actor);
+
+        hero.play();
+
+        commands.spawn(hero);
+    }
+
+    pub fn play(&mut self) {
+
+        self.animation.play(
+            &self.mover.animation,
+            &self.mover.direction,
             true
         );
-
-        commands.spawn(hero_bundle);
-
     }
 }
 
@@ -102,10 +115,11 @@ pub fn make_heros(
 
     for actor_handle in actor_handles.0.iter() {
         if let Some(actor) = actor_assets.get(&actor_handle.0) {
+            
             info!("spawn actor.name: {}", actor.name);
 
             for _i in 0..SPAWN_NUM {
-                HeroBundle::instantiate(&mut commands, &actor);
+                HeroBundle::spawn(&mut commands, &actor);
             }
         }
     }

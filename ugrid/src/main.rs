@@ -5,7 +5,6 @@ use bevy::{
 
 mod action;
 mod actor;
-mod assets;
 mod camera;
 mod hero;
 mod info;
@@ -15,8 +14,6 @@ mod ugrid;
 use common::{
     *,
     animation::*,
-    meta::*,
-    level::*,
 };
 
 
@@ -32,10 +29,6 @@ use crate::{
 
 const BG_COLOR: Color = Color::rgb(0.31, 0.47, 0.51);
 const ASSETS_PATH: &str = "../assets/";
-const LEVEL_YAML: &str = "ugrid/game.level.yaml";
-const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
-
-
 
 fn main() {
 
@@ -43,85 +36,51 @@ fn main() {
 
     app.add_plugins(DefaultPlugins
             .set(AssetPlugin {
-                asset_folder: ASSETS_PATH.to_string(),
-                ..Default::default()
+                file_path: ASSETS_PATH.to_string(),
+                ..default()
             })
             .set(ImagePlugin::default_nearest())
         )
-        //.add_plugin(WorldInspectorPlugin::new())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(EntityCountDiagnosticsPlugin::default());
+        //.add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(EntityCountDiagnosticsPlugin::default());
 
-    app.insert_resource(ClearColor(BG_COLOR))
-        .add_state::<GameState>();
+    app.insert_resource(ClearColor(BG_COLOR));
+    app.init_state::<GameState>();
 
-    register(&mut app);
+    app.init_asset::<ActorAsset>()
+        .init_asset_loader::<ActorLoader>();
 
-    let asset_server = app.world.get_resource::<AssetServer>().unwrap();
-    let level_asset = LEVEL_YAML;
-    let level_handle: Handle<LevelMeta> = asset_server.load(level_asset);
+    load_actors(&mut app);
+    load_fonts(&mut app);
 
-    let font_asset = FONT_TTF;
-    let font_handle: Handle<Font> = asset_server.load(font_asset);
+    app.add_systems(Startup, make_camera);
 
-    app.world.insert_resource(LevelHandle(level_handle));
-    app.world.insert_resource(FontHandle(font_handle));
+    app.add_systems(Update,
+            (make_heros).run_if(in_state(GameState::Loading))
+        );
 
-    app.add_startup_system(make_camera)
-        .add_startup_system(setup);
-
-    app.add_system(
-            (load_level).run_if(in_state(GameState::Loading))
-        )
-        .add_system(
-            (make_heros).run_if(in_state(GameState::Spawning))
-        )
-        .add_system(
+    app.add_systems(Update,
             (make_grids).run_if(in_state(GameState::Griding))
-        )
-        .add_system(
+        );
+
+    app.add_systems(Update,
             (make_info).run_if(in_state(GameState::Infoing))
-        )
-        .add_system(
-            (update).in_schedule(CoreSchedule::FixedUpdate),
-        )
-        .add_system(
-            (camera_control).run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (random).after(update)
-            .run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (turning).after(update)
-            .run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (moving).after(turning)
-            .run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (update_grids).after(turning)
-            .run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (animating).after(turning)
-            .run_if(in_state(GameState::Playing)),
-        )
-        .add_system(
-            (update_info).after(animating)
-            .run_if(in_state(GameState::Playing)),
+        );
+
+    app.add_systems(FixedUpdate,
+            (
+                camera_control,
+                random,
+                turning,
+                moving,
+                update_grids,
+                animating,
+                update_info
+            ).chain().run_if(in_state(GameState::Playing)),
         );
     
     app.run();
 
 }
 
-fn setup() {
-    info!("hello, character sprite sheet!");
-
-}
-
-fn update() {
-
-}

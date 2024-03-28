@@ -4,6 +4,7 @@ members = [
 	"hello",
 	"sheet",
 	"gltf",
+    "ugrid",
 ]
 
 [profile.dev]

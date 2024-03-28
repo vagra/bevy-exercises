@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
 pub mod animation;
-pub mod bundle;
-pub mod level;
-pub mod meta;
+pub mod assets;
 pub mod mover;
 
 
@@ -20,7 +18,9 @@ pub const MAX_SPEED: f32 = 1.2;
 pub const MIN_RUN_SPEED: f32 = 0.8;
 pub const MIN_WALK_SPEED: f32 = 0.2;
 
+const ACTOR_NUM: i32 = 17;
 const SQR: f32 = 0.7071;
+const FONT_TTF: &str = "fonts/FiraCode-Regular.ttf";
 
 pub const VECTORES: [Vec2; 8] = [
 	Vec2{ x: 0.0, y:-1.0 },
@@ -33,12 +33,12 @@ pub const VECTORES: [Vec2; 8] = [
 	Vec2{ x:-SQR, y:-SQR },
 ];
 
+pub const BASE_PATH: &str = "sheet";
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
 pub enum GameState {
     #[default]
     Loading,
-    Spawning,
     Griding,
     Infoing,
     Playing,

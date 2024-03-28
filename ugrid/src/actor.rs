@@ -7,8 +7,6 @@ pub const REGION: Rect = Rect{
     max: Vec2 { x: 800.0, y: 400.0 },
 };
 
-pub const SPRITE_SCALE: f32 = 0.5;
-
 #[derive(Component, Default, Debug)]
 pub struct Actor {
     pub index: u32,
@@ -23,7 +21,7 @@ impl Actor {
 
     pub fn new(index:u32, id:u32) -> Self {
 
-        let (x, y) = gen_rand_pos();
+        let (x, y) = gen_rand_position();
         
         Self {
             index,
@@ -37,7 +35,7 @@ impl Actor {
 }
 
 
-fn gen_rand_pos() -> (f32, f32) {
+fn gen_rand_position() -> (f32, f32) {
     let mut rng = rand::thread_rng();
 
     ( rng.gen_range(REGION.min.x..REGION.max.x),

@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy::diagnostic::*;
 
-use common::*;
+use common::{
+    *,
+    assets::*
+};
 use crate::ugrid::Grid;
 
 
@@ -12,19 +15,14 @@ const INFO_TOP: f32 = 8.0;
 const INFO_RIGHT: f32 = 8.0;
 
 
-#[derive(Resource, Deref, DerefMut)]
-pub struct FontHandle(pub Handle<Font>);
-
-
 #[derive(Component, Clone)]
 pub struct InfoText;
 
 
-#[derive(Bundle, Clone)]
+#[derive(Bundle)]
 pub struct Info {
     pub info_text: InfoText,
 
-    #[bundle]
     pub text_bundle: TextBundle,
 }
 
@@ -50,11 +48,8 @@ impl Info {
             ])
             .with_style(Style {
                 position_type: PositionType::Absolute,
-                position: UiRect {
-                    top: Val::Px(INFO_TOP),
-                    right: Val::Px(INFO_RIGHT),
-                    ..default()
-                },
+                top: Val::Px(INFO_TOP),
+                right: Val::Px(INFO_RIGHT),
                 ..default()
             }),
         }
@@ -78,10 +73,10 @@ pub fn make_info(
 }
 
 pub fn update_info(
-    diagnostics: Res<Diagnostics>,
+    diagnostics: Res<DiagnosticsStore>,
     mut query: Query<&mut Text, With<InfoText>>
 ) {
-    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+    if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.value() {
             let mut text = query.single_mut();
             text.sections[1].value =  format!("{value:.0}");

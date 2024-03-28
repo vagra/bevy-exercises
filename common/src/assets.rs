@@ -1,9 +1,10 @@
 use std::collections::HashMap;
+
 use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext, *},
-    prelude::*,
+    asset::{io::Reader, *}, prelude::*
 };
 use serde::Deserialize;
+
 use crate::*;
 
 
@@ -22,6 +23,7 @@ pub struct FontHandle(pub Handle<Font>);
 #[derive(Asset, Component, TypePath, Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ActorAsset {
+    pub id: u32,
     pub name: String,
     pub image: String,
     pub tile_size: UVec2,
@@ -105,4 +107,30 @@ impl AssetLoader for ActorLoader {
     fn extensions(&self) -> &[&str] {
         &["actor.yml", "actor.yaml"]
     }
+}
+
+
+
+pub fn load_actors(app: &mut App) {
+
+    let asset_server = app.world.get_resource::<AssetServer>().unwrap();
+
+    let mut actor_handles = Vec::new();
+
+    for i in 0..ACTOR_NUM {
+        let actor_yaml = format!("{BASE_PATH}/actor-{}.actor.yaml", i);
+        let actor_handle: Handle<ActorAsset> = asset_server.load(actor_yaml);
+        actor_handles.push(ActorHandle(actor_handle));
+    }
+
+    app.world.insert_resource(ActorHandles(actor_handles));
+
+}
+
+
+pub fn load_fonts(app: &mut App) {
+
+    let asset_server = app.world.get_resource::<AssetServer>().unwrap();
+    let font_handle: Handle<Font> = asset_server.load(FONT_TTF);
+    app.world.insert_resource(FontHandle(font_handle));
 }

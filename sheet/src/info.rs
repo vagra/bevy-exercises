@@ -3,7 +3,7 @@ use bevy::{
     diagnostic::*
 };
 
-use crate::FontHandle;
+use common::assets::*;
 
 
 const FONT_SIZE: f32 = 20.0;

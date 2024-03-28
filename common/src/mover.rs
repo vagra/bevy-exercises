@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Component, Clone)]
 pub struct Mover {
-    pub dir: usize,
+    pub direction: usize,
     pub animation: String,
     pub speed: f32,
     pub duration: f32,
@@ -26,7 +26,7 @@ impl Mover {
         let speed = gen_rand_speed();
 
         Self {
-            dir: gen_rand_dir(),
+            direction: gen_rand_direction(),
 
             speed: speed,
 
@@ -41,7 +41,7 @@ impl Mover {
     }
 
     pub fn random(&mut self) {
-        self.dir = gen_rand_dir();
+        self.direction = gen_rand_direction();
         self.speed = gen_rand_speed();
         self.animation = gen_rand_animation(self.speed);
         self.duration = gen_rand_duration();
@@ -53,26 +53,26 @@ impl Mover {
         let mut rng = rand::thread_rng();
     
         let range: i32 = rng.gen_range(-1..2);
-        self.dir = (back as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
+        self.direction = (back as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
     }
 
     pub fn _bump(&mut self) {
         let mut rng = rand::thread_rng();
     
         let range: i32 = rng.gen_range(-2..3);
-        self.dir = (self.dir as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
+        self.direction = (self.direction as i32 + range + DIRECTIONS as i32) as usize % DIRECTIONS;
     }
 
     pub fn dodge(&mut self, dirs:&Vec<usize>) -> bool {
 
-        if dirs.contains(&self.dir) {
+        if dirs.contains(&self.direction) {
             return false;
         }
 
         let mut rng = rand::thread_rng();
 
         let index = rng.gen_range(0..dirs.len());
-        self.dir = dirs[index];
+        self.direction = dirs[index];
 
         true
     }
@@ -86,7 +86,7 @@ impl Mover {
 
         animation.play(
             &self.animation, 
-            self.dir,
+            &self.direction,
             true
         );
     }
@@ -95,7 +95,7 @@ impl Mover {
 
 
 
-fn gen_rand_dir() -> usize {
+fn gen_rand_direction() -> usize {
     let mut rng = rand::thread_rng();
 
     rng.gen_range(0..DIRECTIONS)

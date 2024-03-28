@@ -4,16 +4,9 @@ use bevy::prelude::*;
 
 use crate::{
     *,
-    meta::*,
+    assets::*,
 };
 
-
-#[derive(Bundle, Clone)]
-pub struct AnimatedSpriteSheetBundle {
-    pub animation: Animation,
-
-    pub sprite_sheet: SpriteSheetBundle,
-}
 
 #[derive(Component, Clone)]
 pub struct Animation {
@@ -28,11 +21,11 @@ pub struct Animation {
 
 impl Animation {
 
-    pub fn new(sprite_sheet: &ActorSpriteSheetMeta) -> Self {
+    pub fn new(actor: &ActorAsset) -> Self {
 
         let mut clips_map: HashMap<String, [ClipMeta; DIRECTIONS]> = HashMap::new();
 
-        for (name, clip_meta) in sprite_sheet.animations.iter() {
+        for (name, clip_meta) in actor.animations.iter() {
 
             let mut clips_vec: [ClipMeta; DIRECTIONS] = [(); DIRECTIONS]
                 .map(|_| ClipMeta::default());
@@ -41,7 +34,7 @@ impl Animation {
                 let mut clip_frames = clip_meta.frames.clone();
 
                 for frame in clip_frames.iter_mut() {
-                    *frame = *frame + sprite_sheet.columns * i;
+                    *frame = *frame + actor.columns * i;
                 }
 
                 clips_vec[i].name = clip_meta.name.clone();
@@ -57,12 +50,12 @@ impl Animation {
             direction: 0,
             current_animation: None,
             current_index: 0,
-            timer: Timer::from_seconds(sprite_sheet.fps, TimerMode::Once),
+            timer: Timer::from_seconds(actor.fps, TimerMode::Once),
             once: false,
         }
     }
 
-    pub fn play(&mut self, name: &str, direction: usize, repeating: bool) {
+    pub fn play(&mut self, name: &str, direction: &usize, repeating: bool) {
 
         self.direction = direction.clone();
         self.current_animation = Some(name.to_owned());

@@ -84,8 +84,8 @@ pub fn moving(
         actor.prev_x = transform.translation.x;
         actor.prev_y = transform.translation.y;
 
-        transform.translation.x += mover.speed * VECTORES[mover.dir].x;
-        transform.translation.y += mover.speed * VECTORES[mover.dir].y;
+        transform.translation.x += mover.speed * VECTORES[mover.direction].x;
+        transform.translation.y += mover.speed * VECTORES[mover.direction].y;
 
         transform.translation.z = order_z(transform.translation.y);
 
