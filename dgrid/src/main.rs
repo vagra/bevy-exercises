@@ -68,7 +68,7 @@ fn main() {
             (make_info).run_if(in_state(GameState::Infoing))
         );
 
-    app.add_systems(FixedUpdate,
+    app.add_systems(Update,
             (
                 move_camera,
                 random,
@@ -77,7 +77,7 @@ fn main() {
                 update_grids,
                 animating,
                 update_info
-            ).chain().run_if(in_state(GameState::Playing)),
+            ).run_if(in_state(GameState::Playing)),
         );
     
     app.run();

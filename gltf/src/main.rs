@@ -29,14 +29,21 @@ fn main() {
         .insert_resource(Time::<Fixed>::from_seconds(TIME_STEP))
         .add_plugins(DefaultPlugins.set(AssetPlugin {
             file_path: ASSETS_PATH.to_string(),
-            ..Default::default()
+            ..default()
         }))
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(EntityCountDiagnosticsPlugin::default())
-        .add_systems(Startup, setup_scene)
-        .add_systems(Startup, setup_info)
-        .add_systems(FixedUpdate, (update_info, keyboard_control))
+        .add_plugins(
+            (
+                WorldInspectorPlugin::default(),
+                FrameTimeDiagnosticsPlugin::default(),
+                EntityCountDiagnosticsPlugin::default()
+            )
+        )
+        .add_systems(Startup,
+            (setup_scene, setup_info)
+        )
+        .add_systems(Update, 
+            (update_info, keyboard_control)
+        )
         .run();
 }
 

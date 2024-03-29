@@ -17,7 +17,7 @@ use crate::{
 
 const MAX_SPAWN: u32 = 10000;
 const ANCHOR: Vec2 = Vec2 {x: 0.0, y: -0.4};
-const SPAWN_NUM: u32 = 200;
+const SPAWN_NUM: u32 = 400;
 
 
 #[derive(Bundle)]
