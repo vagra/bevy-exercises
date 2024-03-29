@@ -3,13 +3,11 @@ use bevy::diagnostic::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod action;
-mod camera;
 mod hero;
 mod info;
 
 use crate::{
     action::*,
-    camera::*,
     hero::*,
     info::*,
 };
@@ -17,7 +15,8 @@ use crate::{
 use common::{
     *,
     assets::*,
-    animation::*
+    animation::*,
+    camera::*
 };
 
 
@@ -63,6 +62,7 @@ fn main() {
 
     app.add_systems(FixedUpdate,
         (
+            move_camera,
             random,
             backing,
             moving,

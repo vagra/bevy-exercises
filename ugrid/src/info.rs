@@ -63,7 +63,7 @@ pub fn make_info(
     font_handle: Res<FontHandle>,
     grid: Res<Grid>
 ) {
-    info!("make TextInfo");
+    info!("make TextInfo...");
 
     commands.spawn(Info::new(&font_handle, grid.pool.size));
 

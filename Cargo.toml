@@ -5,6 +5,7 @@ members = [
 	"sheet",
 	"gltf",
     "ugrid",
+    "dgrid",
 ]
 
 [profile.dev]

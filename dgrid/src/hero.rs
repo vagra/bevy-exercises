@@ -5,10 +5,9 @@ use bevy::{
 
 use common::{
     *,
-    bundle::*,
     animation::*,
-    meta::*,
-    mover::*,
+    assets::*,
+    mover::*
 };
 
 use crate::{
@@ -18,6 +17,7 @@ use crate::{
 
 const MAX_SPAWN: u32 = 10000;
 const ANCHOR: Vec2 = Vec2 {x: 0.0, y: -0.4};
+const SPAWN_NUM: u32 = 200;
 
 
 #[derive(Bundle)]
@@ -25,33 +25,39 @@ pub struct HeroBundle {
     pub actor: Actor,
     pub mover: Mover,
 
-    #[bundle]
-    pub animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle,
+    pub animation: Animation,
+    pub sprite_sheet: SpriteSheetBundle,
 }
 
 
 impl HeroBundle {
 
-    pub fn new(index:u32, actor_meta: &ActorMeta) -> Self {
+    pub fn new(
+        index: u32,
+        asset: &ActorAsset
+    ) -> Self {
 
-        let id = (actor_meta.id * MAX_SPAWN + index) as u32;
+        let id = (asset.id * MAX_SPAWN + index) as u32;
 
         let actor = Actor::new(index, id);
         let mover = Mover::new();
 
+        let position = Vec3 {
+            x: actor.x, 
+            y: actor.y,
+            z: order_z(actor.y),
+        };
+
         let zoom = actor.hw as f32 / MAX_AGENT_RADIUS as f32 * SPRITE_SCALE;
+        let scale = Vec3{
+            x: zoom,
+            y: zoom,
+            z: 1.0
+        };
 
         let transform = Transform{
-            translation: Vec3 {
-                x: actor.x,
-                y: actor.y,
-                z: order_z(actor.y)
-            },
-            scale: Vec3{
-                x: zoom,
-                y: zoom,
-                z: 1.0
-            },
+            translation: position,
+            scale: scale,
             ..default()
         };
 
@@ -59,41 +65,64 @@ impl HeroBundle {
 
             actor,
             mover,
-            
-            animated_sprite_sheet_bundle: AnimatedSpriteSheetBundle {
 
-                sprite_sheet: SpriteSheetBundle {
+            animation: Animation::new(
 
-                    sprite: TextureAtlasSprite {
-                        
-                        anchor: Anchor::Custom(ANCHOR),
-                        ..default()
-                    },
+                &asset,
+            ),
 
-                    texture_atlas: actor_meta.sprite_sheet.atlas_handle.clone(),
+            sprite_sheet: SpriteSheetBundle {
 
-                    transform,
-
+                sprite: Sprite {
+                    
+                    anchor: Anchor::Custom(ANCHOR),
                     ..default()
                 },
 
-                animation: Animation::new(
+                atlas: TextureAtlas {
+                    layout: asset.layout_handle.clone(),
+                    index: 0
+                },
 
-                    &actor_meta.sprite_sheet,
-                ),
+                texture: asset.image_handle.clone(),
+
+                transform,
+
+                ..default()
             },
         }
+
+    }
+
+    pub fn spawn(
+        commands: &mut Commands,
+        grid: &mut Grid,
+        index: u32,
+        actor: &ActorAsset
+    ) {
+
+        let mut hero = HeroBundle::new(index, actor);
+
+        hero.play();
+
+        grid.insert(
+            hero.actor.id,
+            hero.actor.x as i16,
+            hero.actor.y as i16,
+            hero.actor.hw,
+            hero.actor.hh
+        );
+
+        commands.spawn(hero);
+
     }
 
 
     pub fn play(&mut self) {
 
-        self
-        .animated_sprite_sheet_bundle
-        .animation
-        .play(
+        self.animation.play(
             &self.mover.animation,
-            self.mover.dir,
+            &self.mover.direction,
             true
         );
     }
@@ -102,37 +131,22 @@ impl HeroBundle {
 
 pub fn make_heros(
     mut commands: Commands,
-    query: Query<(
-            &SpawnCount,
-            &Handle<ActorMeta>,
-        )>,
-    actor_assets: Res<Assets<ActorMeta>>,
+    actor_handles: Res<ActorHandles>,
+    actor_assets: Res<Assets<ActorAsset>>,
 ) {
 
     info!("make Heros with Grid...");
 
     let mut grid = Grid::default();
 
-    for ( spawn_count, actor_handle) in query.iter() {
+    for actor_handle in actor_handles.0.iter() {
 
-        if let Some(actor_meta) = actor_assets.get(actor_handle) {
+        if let Some(actor) = actor_assets.get(&actor_handle.0) {
             
-            for index in 0..spawn_count.0 {
+            info!("spawn actor.name: {}", actor.name);
 
-                let mut hero_bundle = HeroBundle::new(index, actor_meta,);
-    
-                grid.insert(
-                    hero_bundle.actor.id,
-                    hero_bundle.actor.x as i16,
-                    hero_bundle.actor.y as i16,
-                    hero_bundle.actor.hw,
-                    hero_bundle.actor.hh
-                );
-
-                hero_bundle.play();
-
-                commands.spawn(hero_bundle);
-
+            for i in 0u32..SPAWN_NUM {
+                HeroBundle::spawn(&mut commands, &mut grid, i, &actor);
             }
         }
     }

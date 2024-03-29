@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub mod animation;
 pub mod assets;
+pub mod camera;
 pub mod mover;
 
 

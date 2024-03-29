@@ -3,7 +3,6 @@
 use bevy::{
     prelude::*,
     sprite::Anchor,
-    reflect::TypeUuid,
 };
 
 use grid::{*, dgrid::{*, lcell::LCell, rect::LRect}};
@@ -18,8 +17,7 @@ const HALF_COLS:u16 = 40;
 const HALF_ROWS:u16 = 40;
 
 
-#[derive(Resource, Deref, DerefMut, TypeUuid)]
-#[uuid = "e458f087-eee5-48ee-bc11-f59f8826d4ae"]
+#[derive(Resource, Deref, DerefMut, TypePath)]
 pub struct Grid(pub DGrid);
 
 impl Default for Grid {
@@ -41,7 +39,6 @@ pub struct GridBundle {
     pub col: LCol,
     pub row: LRow,
 
-    #[bundle]
     pub sprite: SpriteBundle,
 }
 

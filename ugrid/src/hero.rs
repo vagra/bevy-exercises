@@ -4,7 +4,10 @@ use bevy::{
 };
 
 use common::{
-    animation::*, assets::{ActorAsset, ActorHandles}, mover::*
+    *,
+    animation::*,
+    assets::*,
+    mover::*
 };
 
 use crate::{

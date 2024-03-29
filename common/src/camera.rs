@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use common::*;
+use crate::*;
 
 const CAMERA_SPEED: f32 = 5.0;
 
@@ -13,20 +13,20 @@ pub fn make_camera(
 
 }
 
-pub fn camera_control(
+pub fn move_camera(
     mut query: Query<
         &mut Transform,
         With<Camera>,
     >,
-    input: Res<Input<KeyCode>>
+    input: Res<ButtonInput<KeyCode>>
 ) {
     let mut transform = query.get_single_mut()
                         .expect("error: camera not found.");
 
-    let l = input.pressed(KeyCode::Left);
-    let r = input.pressed(KeyCode::Right);
-    let u = input.pressed(KeyCode::Up);
-    let d = input.pressed(KeyCode::Down);
+    let l = input.pressed(KeyCode::ArrowLeft);
+    let r = input.pressed(KeyCode::ArrowRight);
+    let u = input.pressed(KeyCode::ArrowUp);
+    let d = input.pressed(KeyCode::ArrowDown);
 
     if let Some(pos) = key2dir(l, r, u, d) {
 

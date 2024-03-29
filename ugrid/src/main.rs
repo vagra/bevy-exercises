@@ -5,7 +5,6 @@ use bevy::{
 
 mod action;
 mod actor;
-mod camera;
 mod hero;
 mod info;
 mod ugrid;
@@ -13,6 +12,7 @@ mod ugrid;
 
 use common::{
     *,
+    camera::*,
     animation::*,
 };
 
@@ -20,7 +20,6 @@ use common::{
 use crate::{
     action::*,
     assets::*,
-    camera::*,
     hero::*,
     info::*,
     ugrid::*,
@@ -70,7 +69,7 @@ fn main() {
 
     app.add_systems(FixedUpdate,
             (
-                camera_control,
+                move_camera,
                 random,
                 turning,
                 moving,

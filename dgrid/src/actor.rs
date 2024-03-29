@@ -29,7 +29,7 @@ impl Actor {
 
     pub fn new(index:u32, id:u32) -> Self {
 
-        let (x, y) = gen_rand_pos();
+        let (x, y) = gen_rand_position();
 
         let r = gen_rand_size();
         
@@ -46,7 +46,8 @@ impl Actor {
     }
 }
 
-fn gen_rand_pos() -> (f32, f32) {
+
+fn gen_rand_position() -> (f32, f32) {
     let mut rng = rand::thread_rng();
 
     ( rng.gen_range(REGION.min.x..REGION.max.x),
